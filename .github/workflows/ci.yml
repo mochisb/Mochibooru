@@ -4,9 +4,22 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # These credentials belong only to this job's disposable service containers.
+    # Fork pull requests can run the tests without repository secrets.
+    env:
+      DATABASE_URL: postgres://mochi:mochi@127.0.0.1:5432/mochibooru
+      REDIS_URL: redis://127.0.0.1:6379
+      ORIGIN: http://localhost:5173
+      PORT: '5173'
+      REGISTRATION_OPEN: 'true'
+      REQUIRE_APPROVAL: 'false'
     services:
       postgres:
         image: postgres:17-alpine

@@ -38,9 +38,9 @@ export const POST: RequestHandler = async (event) => {
 	const maxBytes = getConfig().MAX_UPLOAD_MB * 1024 * 1024;
 	const declaredSize = Number(event.request.headers.get('content-length'));
 	if (declaredSize > maxBytes + 65536)
-		error(413, `El archivo supera ${getConfig().MAX_UPLOAD_MB} MB.`);
+		error(413, `The file exceeds ${getConfig().MAX_UPLOAD_MB} MB.`);
 	// Read with an actual byte ceiling, including requests using chunked encoding.
-	if (!event.request.body) error(400, 'Falta el archivo.');
+	if (!event.request.body) error(400, 'Missing file.');
 	const reader = event.request.body.getReader();
 	const chunks: Uint8Array[] = [];
 	let size = 0;
@@ -50,7 +50,7 @@ export const POST: RequestHandler = async (event) => {
 		size += chunk.value.byteLength;
 		if (size > maxBytes + 65536) {
 			await reader.cancel();
-			error(413, 'La subida supera el tamaño permitido.');
+			error(413, 'The upload exceeds the size limit.');
 		}
 		chunks.push(chunk.value);
 	}
@@ -60,11 +60,11 @@ export const POST: RequestHandler = async (event) => {
 			headers: { 'content-type': event.request.headers.get('content-type') ?? '' },
 		}).formData();
 	} catch {
-		error(400, 'Formulario multipart inválido.');
+		error(400, 'Invalid multipart form.');
 	}
 	const file = data.get('file');
-	if (!(file instanceof File) || file.size < 1) error(400, 'Selecciona una imagen.');
-	if (file.size > maxBytes) error(413, `El archivo supera ${getConfig().MAX_UPLOAD_MB} MB.`);
+	if (!(file instanceof File) || file.size < 1) error(400, 'Select an image.');
+	if (file.size > maxBytes) error(413, `The file exceeds ${getConfig().MAX_UPLOAD_MB} MB.`);
 	const parsed = postInput.safeParse(Object.fromEntries(data));
 	if (!parsed.success) error(400, parsed.error.issues[0].message);
 	const input = parsed.data;
@@ -88,7 +88,7 @@ export const POST: RequestHandler = async (event) => {
 						gte(posts.createdAt, new Date(Date.now() - 3600_000)),
 					),
 				);
-			if (recent.count >= 100) error(429, 'Has alcanzado el límite de 100 subidas por hora.');
+			if (recent.count >= 100) error(429, 'You have reached the limit of 100 uploads per hour.');
 			const inserted = await tx
 				.insert(posts)
 				.values({
@@ -103,7 +103,7 @@ export const POST: RequestHandler = async (event) => {
 				})
 				.onConflictDoNothing({ target: posts.sha256 })
 				.returning({ id: posts.id });
-			if (!inserted.length) error(409, 'Este archivo ya existe en la colección.');
+			if (!inserted.length) error(409, 'This file already exists in the collection.');
 			await setPostTags(tx, id, input.tags);
 			await tx
 				.insert(postRevisions)

@@ -20,23 +20,23 @@
 
 <section class="page-heading">
 	<div>
-		<div class="eyebrow"><Sparkles size={14} /> DESCUBRE. GUARDA. CONECTA.</div>
+		<div class="eyebrow"><Sparkles size={14} /> DISCOVER. SAVE. CONNECT.</div>
 		<h1>
-			{data.favoritesOnly ? 'Tus favoritos' : 'Encuentra tu próxima inspiración'}<span
-				class="accent">.</span
+			{data.favoritesOnly ? 'Your favorites' : 'Find your next inspiration'}<span class="accent"
+				>.</span
 			>
 		</h1>
 		<p>
 			{data.favoritesOnly
-				? 'Ese pequeño universo al que siempre quieres volver.'
-				: 'Un universo de imágenes, conectado por etiquetas. Hazlo tuyo.'}
+				? 'That little universe you always want to return to.'
+				: 'A universe of images, connected by tags. Make it yours.'}
 		</p>
 	</div>
 	<div class="heading-art" aria-hidden="true">✳</div>
 </section>
 <SearchBar value={data.q} />
 {#if data.popular.length}<div class="popular-tags">
-		<span class="muted small">Explora etiquetas</span>{#each data.popular.slice(0, 7) as tag}<a
+		<span class="muted small">Explore tags</span>{#each data.popular.slice(0, 7) as tag}<a
 				class="tag-chip"
 				href={`/?q=${encodeURIComponent(tag.name)}`}><Hash size={12} />{tag.name}</a
 			>{/each}
@@ -44,25 +44,25 @@
 <div class="gallery-toolbar">
 	<div class="row">
 		<span class="section-marker"></span>
-		<h2>{data.q ? 'Resultados' : data.favoritesOnly ? 'Tu colección' : 'Recién llegadas'}</h2>
+		<h2>{data.q ? 'Results' : data.favoritesOnly ? 'Your collection' : 'Fresh arrivals'}</h2>
 		<span class="count-pill">{data.posts.length}{data.hasNext ? '+' : ''}</span>
 	</div>
 	<div class="row filters">
 		<SlidersHorizontal size={15} class="muted" /><label class="sr-only" for="rating-filter"
-			>Clasificación</label
+			>Rating</label
 		><select
 			id="rating-filter"
 			value={selectedRating}
 			onchange={(event) => filter('rating', event.currentTarget.value)}
 			><option value="safe">Safe</option><option value="questionable">Questionable</option><option
 				value="explicit">Explicit</option
-			><option value="any">Todas</option></select
-		><label class="sr-only" for="sort-filter">Ordenar</label><select
+			><option value="any">All ratings</option></select
+		><label class="sr-only" for="sort-filter">Sort by</label><select
 			id="sort-filter"
 			value={selectedSort}
 			onchange={(event) => filter('sort', event.currentTarget.value)}
-			><option value="newest">Más recientes</option><option value="oldest">Más antiguas</option
-			><option value="score">Más favoritos</option></select
+			><option value="newest">Newest first</option><option value="oldest">Oldest first</option
+			><option value="score">Most favorited</option></select
 		>
 	</div>
 </div>
@@ -75,34 +75,33 @@
 			{#if data.q || data.favoritesOnly}<SearchX size={34} />{:else}<ImagePlus size={34} />{/if}
 		</div>
 		<span class="eyebrow"
-			>{data.q || data.favoritesOnly ? 'UN POCO MÁS ALLÁ' : 'TODO EMPIEZA CON UNA IMAGEN'}</span
+			>{data.q || data.favoritesOnly ? 'KEEP EXPLORING' : 'IT ALL STARTS WITH AN IMAGE'}</span
 		>
 		<h2>
 			{data.q
-				? 'Aún no hay coincidencias'
+				? 'No matches yet'
 				: data.favoritesOnly
-					? 'Aquí vivirán tus favoritos'
-					: 'Tu universo está por comenzar'}
+					? 'Your favorites will live here'
+					: 'Your universe is about to begin'}
 		</h2>
 		<p>
 			{data.q
-				? 'Prueba con menos etiquetas o cambia los filtros para ampliar tu búsqueda.'
+				? 'Try fewer tags or adjust the filters to broaden your search.'
 				: data.favoritesOnly
-					? 'Abre una publicación y pulsa el corazón para guardarla aquí.'
-					: 'Comparte la primera imagen, añade unas etiquetas y dale vida a esta comunidad.'}
+					? 'Open a post and tap the heart to save it here.'
+					: 'Share the first image, add a few tags and bring this community to life.'}
 		</p>
 		<a class="button primary" href={data.q || data.favoritesOnly ? '/' : '/upload'}
-			>{data.q || data.favoritesOnly ? 'Explorar imágenes' : 'Subir la primera imagen'}<ArrowRight
+			>{data.q || data.favoritesOnly ? 'Explore images' : 'Upload the first image'}<ArrowRight
 				size={16}
 			/></a
 		>
 		<div class="empty-steps">
-			<span><b>01</b> Sube</span><span><b>02</b> Etiqueta</span><span><b>03</b> Descubre</span>
+			<span><b>01</b> Upload</span><span><b>02</b> Tag</span><span><b>03</b> Discover</span>
 		</div>
 	</section>
 {/if}
 <div class="gallery-note">
-	<span class="rating-dot safe"></span><span
-		>Las búsquedas muestran contenido safe por defecto.</span
-	><span class="muted">Pulsa <kbd>/</kbd> para buscar</span>
+	<span class="rating-dot safe"></span><span>Searches show safe-rated content by default.</span
+	><span class="muted">Press <kbd>/</kbd> to search</span>
 </div>

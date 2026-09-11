@@ -91,8 +91,8 @@
 			bind:this={input}
 			bind:value={text}
 			name="q"
-			aria-label="Buscar publicaciones"
-			placeholder="Busca etiquetas, artistas, personajes…"
+			aria-label="Search posts"
+			placeholder="Search tags, artists, characters…"
 			autocomplete="off"
 			maxlength="512"
 			role="combobox"
@@ -107,17 +107,12 @@
 			onkeydown={keydown}
 		/>
 		<kbd>/</kbd>
-		<button class="icon-button" type="submit" aria-label="Buscar"><ArrowUpRight size={18} /></button
+		<button class="icon-button" type="submit" aria-label="Search"><ArrowUpRight size={18} /></button
 		>
 	</form>
 	<SearchHelp />
 	{#if focused && suggestions.length}
-		<ul
-			id="tag-suggestions"
-			class="suggestions"
-			role="listbox"
-			aria-label="Sugerencias de etiquetas"
-		>
+		<ul id="tag-suggestions" class="suggestions" role="listbox" aria-label="Tag suggestions">
 			{#each suggestions as tag, index}
 				<li id={`suggestion-${index}`} role="option" aria-selected={active === index}>
 					<button

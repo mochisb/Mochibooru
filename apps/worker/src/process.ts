@@ -24,10 +24,10 @@ export async function makeDerivatives(bytes: Uint8Array) {
 		!meta.height ||
 		(meta.format === 'heif' && meta.compression !== 'av1')
 	)
-		throw new InvalidMediaError('Formato no admitido. Usa JPEG, PNG, WebP, GIF o AVIF.');
+		throw new InvalidMediaError('Unsupported format. Use JPEG, PNG, WebP, GIF or AVIF.');
 	const height = meta.pageHeight ?? meta.height;
 	if (meta.width * height > 40_000_000 || (meta.pages ?? 1) > 1000)
-		throw new InvalidMediaError('La imagen supera el límite de dimensiones o fotogramas.');
+		throw new InvalidMediaError('The image exceeds the dimension or frame limit.');
 	// Decode only the first frame for bounded previews; the original keeps its animation.
 	const image = sharp(bytes, options).rotate().timeout({ seconds: 30 });
 	const thumbnail = await image
@@ -67,7 +67,7 @@ export async function processPost(id: string, storage: Storage = getStorage()) {
 		throw new InvalidMediaError(
 			error instanceof InvalidMediaError
 				? error.message
-				: 'No se pudo decodificar la imagen. Puede estar dañada o superar los límites.',
+				: 'Unable to decode the image. It may be corrupted or exceed the limits.',
 		);
 	}
 	const thumbnailKey = `derived/${id}/thumbnail.webp`;

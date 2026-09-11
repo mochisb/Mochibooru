@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		.from(posts)
 		.innerJoin(user, eq(user.id, posts.uploaderId))
 		.where(eq(posts.id, postId(params.id)));
-	if (!row || !canViewPost(locals.user, row.post)) error(404, 'Publicación no encontrada.');
+	if (!row || !canViewPost(locals.user, row.post)) error(404, 'Post not found.');
 	const [post] = await attachTags([row.post]);
 	const saved = locals.user
 		? await getDb()
@@ -55,17 +55,17 @@ export const actions: Actions = {
 		try {
 			await editPost(actor, postId(event.params.id), input.data, getConfig().REQUIRE_APPROVAL);
 		} catch (cause) {
-			if (cause instanceof Error && cause.message.startsWith('No tienes'))
+			if (cause instanceof Error && cause.message.startsWith('You do not have permission'))
 				return fail(403, { message: cause.message });
 			throw cause;
 		}
-		return { message: 'Publicación actualizada.' };
+		return { message: 'Post updated.' };
 	},
 	favorite: async (event) => {
 		const actor = requireUser(event);
 		const id = postId(event.params.id);
 		const [post] = await getDb().select().from(posts).where(eq(posts.id, id));
-		if (!post || !canViewPost(actor, post)) error(404, 'Publicación no encontrada.');
+		if (!post || !canViewPost(actor, post)) error(404, 'Post not found.');
 		const data = await event.request.formData();
 		if (data.get('saved') === 'true')
 			await getDb()
@@ -82,17 +82,16 @@ export const actions: Actions = {
 		const actor = requireModerator(event);
 		const action = (await event.request.formData()).get('action');
 		if (action !== 'publish' && action !== 'reject')
-			return fail(400, { message: 'Acción inválida.' });
+			return fail(400, { message: 'Invalid action.' });
 		try {
 			await moderatePost(actor, postId(event.params.id), action);
 		} catch (cause) {
-			if (cause instanceof Error && cause.message.startsWith('La publicación'))
+			if (cause instanceof Error && cause.message.startsWith('The post has not been processed'))
 				return fail(409, { message: cause.message });
 			throw cause;
 		}
 		return {
-			message:
-				action === 'publish' ? 'Publicación aprobada.' : 'Publicación retirada de la galería.',
+			message: action === 'publish' ? 'Post approved.' : 'Post removed from the gallery.',
 		};
 	},
 	retry: async (event) => {
@@ -100,15 +99,15 @@ export const actions: Actions = {
 		const id = postId(event.params.id);
 		const [post] = await getDb().select().from(posts).where(eq(posts.id, id));
 		if (!post || !(actor.id === post.uploaderId || canModerate(actor)))
-			error(404, 'Publicación no encontrada.');
+			error(404, 'Post not found.');
 		if (post.status !== 'failed')
-			return fail(409, { message: 'Solo se pueden reintentar subidas fallidas.' });
+			return fail(409, { message: 'Only failed uploads can be retried.' });
 		if (Date.now() - post.updatedAt.getTime() < 60_000)
-			return fail(429, { message: 'Espera un minuto antes de reintentar.' });
+			return fail(429, { message: 'Wait one minute before trying again.' });
 		await getDb()
 			.update(posts)
 			.set({ status: 'queued', processingError: null, updatedAt: new Date() })
 			.where(and(eq(posts.id, id), eq(posts.status, 'failed')));
-		return { message: 'La imagen vuelve a estar en la cola.' };
+		return { message: 'The image has been queued again.' };
 	},
 };

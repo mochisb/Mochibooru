@@ -1,49 +1,38 @@
 # Roadmap
 
-## Alpha 0.1 — Recorrido principal implementado
+## Community and organization
 
-- [x] Workspace Bun + TypeScript, SvelteKit y PostgreSQL/Drizzle.
-- [x] Sesiones y permisos de publicación/medios.
-- [x] Subida múltiple de imágenes y worker con miniaturas.
-- [x] Etiquetas, autocompletado, filtros visuales y parser de búsqueda.
-- [x] Favoritos, edición e historial.
-- [x] Revisión, aprobación y retirada de publicaciones.
-- [x] Configuración, migraciones y definición de despliegue Compose.
-- [x] Pruebas unitarias y recorrido E2E.
+- [ ] Tag category management through the interface.
+- [ ] Aliases, implications with cycle detection and tag merging.
+- [ ] Ordered collections, comments and public profiles.
+- [ ] Reports, account suspension and role management.
+- [ ] Password recovery and email verification with a configurable provider.
+- [ ] Imports and bulk editing tools.
+- [ ] Stable write API and integration tokens with scoped permissions.
 
-## Comunidad y organización
+## Stable distribution
 
-- [ ] Gestión de categorías de etiquetas desde la interfaz.
-- [ ] Alias, implicaciones con detección de ciclos y fusiones de etiquetas.
-- [ ] Colecciones ordenadas, comentarios y perfiles públicos.
-- [ ] Reportes, suspensión de cuentas y panel de roles.
-- [ ] Recuperación de contraseñas y verificación de correo con proveedor configurable.
-- [ ] Importaciones y herramientas de edición masiva.
-- [ ] API de escritura estable y tokens de integración con permisos acotados.
+- [ ] Web installation and configuration wizard.
+- [ ] Versioned container image releases and upgrade tests.
+- [ ] Automated database and media restoration in CI.
+- [ ] Processing, queue and error metrics.
+- [ ] Orphaned-object cleanup and configurable retention policies.
+- [ ] S3 integration tests across multiple providers.
+- [ ] Internationalization and further visual customization.
 
-## Distribución estable
+## Media and differentiating features
 
-- [ ] Asistente web de instalación y configuración.
-- [ ] Publicación de imágenes de contenedor por versión y pruebas de actualización.
-- [ ] Recuperación automatizada de base de datos y medios en CI.
-- [ ] Métricas de procesamiento, cola y errores.
-- [ ] Limpieza de objetos huérfanos y política de retención configurable.
-- [ ] Pruebas de integración S3 y varios proveedores.
-- [ ] Internacionalización y más personalización visual.
+- [ ] Video with FFmpeg, limits and reproducible derivatives.
+- [ ] Visual duplicate detection using perceptual hashes.
+- [ ] Reviewable tag suggestions with provenance and confidence scores.
+- [ ] Similarity search and curation tools.
 
-## Multimedia y diferenciadores
+## Measured performance
 
-- [ ] Vídeo con FFmpeg, límites y derivados reproducibles.
-- [ ] Duplicados visuales por hash perceptual.
-- [ ] Sugerencias de etiquetas revisables con procedencia y confianza.
-- [ ] Búsqueda por similitud y herramientas de curación.
+- [ ] Test datasets of 100 thousand and one million posts.
+- [ ] Reproducible multi-tag search benchmarks.
+- [ ] Cursor pagination and materialized aggregates based on results.
+- [ ] Media caching compatible with post removal.
+- [ ] Evaluate external search based on observed limits.
 
-## Rendimiento medido
-
-- [ ] Datos de prueba de 100 mil y un millón de publicaciones.
-- [ ] Mediciones reproducibles de búsquedas con varias etiquetas.
-- [ ] Paginación por cursor y agregados materializados según los resultados.
-- [ ] Caché de medios compatible con la retirada de publicaciones.
-- [ ] Evaluar búsqueda externa a partir de límites observados.
-
-La prioridad siguiente es completar las herramientas de etiquetas y comunidad sobre el recorrido funcional existente.
+The next priority is completing tag and community tools on top of the existing functional workflow.

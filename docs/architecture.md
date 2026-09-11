@@ -1,64 +1,64 @@
-# Arquitectura
+# Architecture
 
-## Aplicación modular con dos procesos
+## Modular application with two processes
 
-La web y el worker comparten contratos TypeScript, PostgreSQL y almacenamiento. SvelteKit se encarga de SSR, navegación, formularios y endpoints; las reglas de autorización y edición están en `packages/core`.
+The web app and worker share TypeScript contracts, PostgreSQL and storage. SvelteKit handles SSR, navigation, forms and endpoints; authorization and editing rules live in `packages/core`.
 
-La interfaz usa Svelte 5, Tailwind CSS, Lucide y Bits UI para el diálogo accesible de ayuda. Better Auth gestiona cuentas y sesiones mediante su adaptador Drizzle. La propiedad `role` es asignada por el servidor y no se admite como entrada del cliente.
+The interface uses Svelte 5, Tailwind CSS, Lucide and Bits UI for the accessible help dialog. Better Auth manages accounts and sessions through its Drizzle adapter. The `role` property is assigned by the server and is not accepted as client input.
 
-## Datos
+## Data
 
-- `user`, `session`, `account`, `verification`: autenticación.
-- `posts`: estado, clasificación, autor de la subida, claves de almacenamiento, hash y metadatos.
-- `tags`, `post_tags`: relación muchos-a-muchos. El esquema permite categorías general, artist, character, copyright y meta; las nuevas etiquetas se crean como general.
-- `post_revisions`: historial de creación, edición y moderación con valores anteriores y posteriores.
-- `favorites`: relación única entre usuario y publicación.
+- `user`, `session`, `account`, `verification`: authentication.
+- `posts`: status, rating, uploader, storage keys, hash and metadata.
+- `tags`, `post_tags`: many-to-many relationship. The schema supports general, artist, character, copyright and meta categories; new tags are created as general.
+- `post_revisions`: creation, editing and moderation history with before and after values.
+- `favorites`: unique relationship between a user and a post.
 
-Las migraciones SQL se generan con Drizzle Kit y se conservan en `packages/db/migrations`. El historial de migraciones evita repetir cambios ya aplicados. Los cambios de metadatos y sus revisiones se escriben en la misma transacción y bloquean la publicación durante la edición.
+SQL migrations are generated with Drizzle Kit and stored in `packages/db/migrations`. Migration history prevents already-applied changes from running again. Metadata changes and their revisions are written in the same transaction, which locks the post during editing.
 
-## Subida y procesamiento
+## Uploading and processing
 
-1. La web exige una sesión y un origen válido, limita el tamaño real del cuerpo y valida los metadatos con Zod.
-2. Calcula SHA-256 y almacena el original con una clave UUID propia.
-3. Inserta publicación, etiquetas y revisión dentro de una transacción. El hash tiene una restricción única; si la transacción falla, se elimina el objeto recién guardado.
-4. La fila `queued` actúa como registro durable del trabajo pendiente. Cada cinco segundos el worker la reconcilia con BullMQ usando el ID de la publicación como ID del trabajo.
-5. El worker decodifica la imagen con Sharp, aplica orientación y escribe derivados WebP en claves deterministas. La vista previa llega hasta 1800 px y la miniatura hasta 480 px, sin ampliar imágenes pequeñas.
-6. Al terminar pasa a `published`, o a `pending` si se exige revisión.
+1. The web app requires a session and a valid origin, limits the actual body size and validates metadata with Zod.
+2. It calculates SHA-256 and stores the original under a generated UUID key.
+3. It inserts the post, tags and revision within a transaction. The hash has a unique constraint; if the transaction fails, the newly stored object is deleted.
+4. The `queued` row is a durable record of pending work. Every five seconds, the worker reconciles it with BullMQ using the post ID as the job ID.
+5. The worker decodes the image with Sharp, applies orientation and writes WebP derivatives to deterministic keys. Previews are limited to 1800 px and thumbnails to 480 px, without enlarging small images.
+6. On completion, the post becomes `published`, or `pending` if review is required.
 
 ```text
 queued → processing → published
                     → pending → published / rejected
-                    → failed → queued (reintento manual)
+                    → failed → queued (manual retry)
 ```
 
-Los fallos transitorios reciben hasta tres intentos con espera exponencial. Un archivo inválido falla definitivamente. La reconciliación también recupera trabajos `processing` antiguos cuando desaparece su entrada de Redis. Los trabajos que ya terminaron o entraron en revisión no vuelven a procesarse.
+Transient failures receive up to three attempts with exponential backoff. Invalid files fail permanently. Reconciliation also recovers stale `processing` jobs when their Redis entry disappears. Jobs that have already finished or entered review are not processed again.
 
-Los originales conservan sus bytes y animación. Las vistas previas son estáticas, orientadas y sin EXIF. Se admiten JPEG, PNG, WebP, GIF y AVIF, hasta 40 millones de píxeles por imagen/fotograma y 1000 fotogramas; SVG y otros formatos se rechazan aunque el decodificador los soporte.
+Originals retain their bytes and animation. Previews are static, oriented and stripped of EXIF data. Supported formats are JPEG, PNG, WebP, GIF and AVIF, up to 40 million pixels per image/frame and 1000 frames; SVG and other formats are rejected even if supported by the decoder.
 
-La transacción SQL y el almacenamiento de objetos no forman una transacción distribuida. Un cierre abrupto entre guardar el objeto y registrar la fila puede dejar un original huérfano. La futura tarea de limpieza deberá contrastar las claves con PostgreSQL y aplicar un margen de antigüedad.
+The SQL transaction and object storage do not form a distributed transaction. An abrupt shutdown between storing the object and recording the row can leave an orphaned original. The future cleanup job will need to compare keys against PostgreSQL and apply an age threshold.
 
-## Permisos
+## Permissions
 
-| Operación                     | Visitante | Miembro                          | Moderador / administrador |
-| ----------------------------- | --------- | -------------------------------- | ------------------------- |
-| Ver publicaciones publicadas  | Sí        | Sí                               | Sí                        |
-| Ver publicaciones no públicas | No        | Propias                          | Todas                     |
-| Subir y guardar favoritos     | No        | Sí                               | Sí                        |
-| Editar metadatos              | No        | Propias, publicadas o pendientes | Sí                        |
-| Aprobar o retirar             | No        | No                               | Sí                        |
+| Operation                 | Visitor | Member                         | Moderator / administrator |
+| ------------------------- | ------- | ------------------------------ | ------------------------- |
+| View published posts      | Yes     | Yes                            | Yes                       |
+| View nonpublic posts      | No      | Own posts                      | All posts                 |
+| Upload and save favorites | No      | Yes                            | Yes                       |
+| Edit metadata             | No      | Own published or pending posts | Yes                       |
+| Approve or remove posts   | No      | No                             | Yes                       |
 
-Las rutas de medios ejecutan la misma comprobación que la ficha. Incluso las peticiones condicionales con ETag comprueban permisos antes de devolver `304`. Los errores internos del procesamiento no se exponen como mensajes técnicos al usuario.
+Media routes perform the same checks as the post page. Even conditional ETag requests check permissions before returning `304`. Internal processing errors are not exposed to users as technical messages.
 
-La promoción a administrador se hace mediante CLI. Las sesiones consultan la base de datos sin caché de cookies para reflejar cambios de rol. Los límites de autenticación usan la IP que resuelve SvelteKit; la cabecera interna se sobrescribe en el hook para impedir que el cliente elija el identificador del límite.
+Administrator promotion is performed through the CLI. Sessions query the database without cookie caching to reflect role changes. Authentication rate limits use the IP resolved by SvelteKit; the internal header is overwritten in the hook to prevent clients from choosing their rate-limit identifier.
 
-## Búsqueda
+## Search
 
-`packages/search` transforma una consulta en una representación estructurada independiente de SQL. `packages/core` la compila a consultas parametrizadas con `EXISTS` / `NOT EXISTS` para las etiquetas, comparaciones para dimensiones y orden estable por fecha e ID. Solo los operadores validados por el parser entran en la estructura SQL.
+`packages/search` turns a query into a structured representation independent of SQL. `packages/core` compiles it into parameterized queries using `EXISTS` / `NOT EXISTS` for tags, comparisons for dimensions and stable ordering by date and ID. Only parser-validated operators enter the SQL structure.
 
-La versión alpha usa paginación por desplazamiento acotada y recuentos en consulta. Antes de plantear millones de publicaciones habrá que medir planes con `EXPLAIN ANALYZE`, introducir paginación por cursor y materializar agregados según los resultados. Un buscador externo sería una decisión posterior basada en esas mediciones.
+The alpha uses bounded offset pagination and calculates counts at query time. Before targeting millions of posts, query plans need to be measured with `EXPLAIN ANALYZE`, cursor pagination introduced and aggregates materialized based on the results. An external search engine would be a later decision informed by those measurements.
 
-## Distribución
+## Distribution
 
-Compose incluye PostgreSQL 17, Redis 7, una tarea de migración, web y worker. Todos los procesos de aplicación se ejecutan con Bun. El almacenamiento local se comparte mediante un volumen; para separar web y worker en distintos servidores se debe configurar S3 o un almacenamiento compartido equivalente.
+Compose includes PostgreSQL 17, Redis 7, a migration job, the web app and the worker. All application processes run with Bun. Local storage is shared through a volume; running the web app and worker on different servers requires S3 or equivalent shared storage.
 
-`GET /api/health` verifica la web y PostgreSQL. La monitorización del worker y de la antigüedad de la cola es un trabajo adicional de operación; el endpoint de salud no representa el estado completo del procesamiento.
+`GET /api/health` checks the web app and PostgreSQL. Monitoring the worker and queue age is an additional operational task; the health endpoint does not represent the full processing status.

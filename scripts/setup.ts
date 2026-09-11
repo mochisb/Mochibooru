@@ -9,11 +9,9 @@ const contents = example
 	.replace('/absolute/path/to/Mochibooru/data/media', fileURLToPath(new URL('data/media', root)));
 try {
 	await writeFile(new URL('.env', root), contents, { flag: 'wx', mode: 0o600 });
-	console.info(
-		'.env creado con un secreto aleatorio. Revisa sus valores y ejecuta bun run db:migrate.',
-	);
+	console.info('.env created with a random secret. Review its values and run bun run db:migrate.');
 } catch (error) {
 	if ((error as NodeJS.ErrnoException).code === 'EEXIST')
-		console.info('.env ya existe; se ha conservado.');
+		console.info('.env already exists and has been preserved.');
 	else throw error;
 }

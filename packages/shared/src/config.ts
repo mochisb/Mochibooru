@@ -15,7 +15,7 @@ const schema = z
 			.min(32)
 			.refine(
 				(s) => !s.startsWith('replace-with'),
-				'Genera un secreto aleatorio para BETTER_AUTH_SECRET.',
+				'Generate a random secret for BETTER_AUTH_SECRET.',
 			),
 		ORIGIN: z.url(),
 		SITE_NAME: z.string().min(1).max(80).default('Mochibooru'),
@@ -36,12 +36,12 @@ const schema = z
 			ctx.addIssue({
 				code: 'custom',
 				path: ['STORAGE_PATH'],
-				message: 'STORAGE_PATH debe ser una ruta absoluta compartida por web y worker.',
+				message: 'STORAGE_PATH must be an absolute path shared by the web app and worker.',
 			});
 		if (config.STORAGE_DRIVER === 's3') {
 			for (const field of ['S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY'] as const)
 				if (!config[field])
-					ctx.addIssue({ code: 'custom', path: [field], message: 'Obligatorio para S3.' });
+					ctx.addIssue({ code: 'custom', path: [field], message: 'Required for S3.' });
 		}
 	});
 

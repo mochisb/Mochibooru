@@ -131,7 +131,7 @@ export async function editPost(
 	await getDb().transaction(async (tx) => {
 		const [post] = await tx.select().from(posts).where(eq(posts.id, id)).for('update');
 		if (!post || !canEditPost(actor, post))
-			throw new Error('No tienes permiso para editar esta publicación.');
+			throw new Error('You do not have permission to edit this post.');
 		const previous = await tx
 			.select({ name: tags.name })
 			.from(postTags)
@@ -165,11 +165,11 @@ export async function editPost(
 }
 
 export async function moderatePost(actor: Actor, id: string, action: 'publish' | 'reject') {
-	if (!canModerate(actor)) throw new Error('No tienes permiso para moderar.');
+	if (!canModerate(actor)) throw new Error('You do not have permission to moderate.');
 	await getDb().transaction(async (tx) => {
 		const [post] = await tx.select().from(posts).where(eq(posts.id, id)).for('update');
 		if (!post || !['pending', 'published', 'rejected'].includes(post.status))
-			throw new Error('La publicación todavía no está procesada.');
+			throw new Error('The post has not been processed yet.');
 		const status = action === 'publish' ? 'published' : 'rejected';
 		await tx.update(posts).set({ status, updatedAt: new Date() }).where(eq(posts.id, id));
 		await tx.insert(postRevisions).values({

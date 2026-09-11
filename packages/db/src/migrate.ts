@@ -6,7 +6,7 @@ try {
 	await migrate(getDb(), {
 		migrationsFolder: fileURLToPath(new URL('../migrations', import.meta.url)),
 	});
-	console.info('Migraciones aplicadas.');
+	console.info('Migrations applied.');
 } finally {
 	await closeDb();
 }

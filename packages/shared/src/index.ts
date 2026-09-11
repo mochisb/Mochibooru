@@ -10,7 +10,7 @@ export const tagName = z
 	.max(80)
 	.regex(
 		/^[\p{L}\p{N}_()][\p{L}\p{N}_()\-.]*$/u,
-		'Usa letras, números, guiones o guiones bajos en las etiquetas.',
+		'Use letters, numbers, hyphens or underscores in tags.',
 	);
 
 export function parseTags(input: string): string[] {
@@ -23,7 +23,7 @@ export function parseTags(input: string): string[] {
 				.map((s) => tagName.parse(s)),
 		),
 	];
-	if (tags.length < 1 || tags.length > 50) throw new Error('Añade entre 1 y 50 etiquetas.');
+	if (tags.length < 1 || tags.length > 50) throw new Error('Add between 1 and 50 tags.');
 	return tags;
 }
 
@@ -38,7 +38,7 @@ export const postInput = z.object({
 			} catch {
 				ctx.addIssue({
 					code: 'custom',
-					message: 'Introduce de 1 a 50 etiquetas válidas, separadas por espacios.',
+					message: 'Enter 1 to 50 valid tags, separated by spaces.',
 				});
 				return z.NEVER;
 			}
@@ -52,7 +52,7 @@ export const postInput = z.object({
 				.max(2048)
 				.refine(
 					(s) => ['https:', 'http:'].includes(new URL(s).protocol),
-					'La fuente debe ser HTTP o HTTPS.',
+					'The source must be an HTTP or HTTPS URL.',
 				),
 		])
 		.default(''),

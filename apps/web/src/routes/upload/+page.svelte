@@ -26,17 +26,17 @@
 		notice = '';
 		for (const file of files) {
 			if (items.length >= 20) {
-				notice = 'Puedes subir hasta 20 imágenes por lote.';
+				notice = 'You can upload up to 20 images per batch.';
 				break;
 			}
 			if (
 				!['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'].includes(file.type)
 			) {
-				notice = `${file.name}: formato no admitido.`;
+				notice = `${file.name}: unsupported format.`;
 				continue;
 			}
 			if (file.size > data.maxUploadMb * 1024 * 1024) {
-				notice = `${file.name}: supera ${data.maxUploadMb} MB.`;
+				notice = `${file.name}: exceeds ${data.maxUploadMb} MB.`;
 				continue;
 			}
 			items.push({ file, preview: URL.createObjectURL(file), progress: 0, state: 'waiting' });
@@ -76,13 +76,13 @@
 					item.url = result.url;
 				} else {
 					item.state = 'error';
-					item.message = result.message ?? `No se pudo subir (${xhr.status}).`;
+					item.message = result.message ?? `Upload failed (${xhr.status}).`;
 				}
 				resolve();
 			};
 			const fail = () => {
 				item.state = 'error';
-				item.message = 'La conexión se interrumpió. Puedes reintentar.';
+				item.message = 'The connection was interrupted. You can try again.';
 				resolve();
 			};
 			xhr.onerror = fail;
@@ -94,7 +94,7 @@
 	async function submit(event: SubmitEvent) {
 		event.preventDefault();
 		if (!items.length) {
-			notice = 'Selecciona al menos una imagen.';
+			notice = 'Select at least one image.';
 			return;
 		}
 		busy = true;
@@ -111,12 +111,12 @@
 	});
 </script>
 
-<svelte:head><title>Subir imágenes · {data.siteName}</title></svelte:head>
+<svelte:head><title>Upload images · {data.siteName}</title></svelte:head>
 <section class="page-heading">
 	<div>
-		<div class="eyebrow">DALE VIDA A LA COLECCIÓN</div>
-		<h1>Algo que merece compartirse<span class="accent">.</span></h1>
-		<p>Una imagen, unas etiquetas y muchas formas de descubrirla.</p>
+		<div class="eyebrow">BRING THE COLLECTION TO LIFE</div>
+		<h1>Something worth sharing<span class="accent">.</span></h1>
+		<p>One image, a few tags and so many ways to discover it.</p>
 	</div>
 </section>
 <form onsubmit={submit} class="upload-layout">
@@ -128,7 +128,7 @@
 			accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
 			multiple
 			onchange={(event) => add(event.currentTarget.files)}
-			aria-label="Seleccionar imágenes"
+			aria-label="Select images"
 			disabled={busy}
 		/>
 		<button
@@ -148,9 +148,9 @@
 				add(event.dataTransfer?.files ?? null);
 			}}
 			><span class="empty-icon"><UploadCloud size={30} /></span><strong
-				>Arrastra tus imágenes aquí</strong
-			><span>o pulsa para elegir archivos</span><small
-				>JPEG, PNG, WebP, GIF y AVIF · Hasta {data.maxUploadMb} MB por imagen</small
+				>Drop your images here</strong
+			><span>or click to choose files</span><small
+				>JPEG, PNG, WebP, GIF and AVIF · Up to {data.maxUploadMb} MB per image</small
 			></button
 		>
 		{#if notice}<p class="notice error" role="alert">{notice}</p>{/if}
@@ -160,51 +160,51 @@
 					<div class="upload-info">
 						<strong>{item.file.name}</strong><span class="muted small"
 							>{(item.file.size / 1024 / 1024).toFixed(2)} MB · {item.state === 'done'
-								? 'En cola de procesamiento'
+								? 'Queued for processing'
 								: item.state === 'uploading'
-									? `Subiendo ${item.progress}%`
+									? `Uploading ${item.progress}%`
 									: item.state === 'error'
 										? item.message
-										: 'Lista para subir'}</span
+										: 'Ready to upload'}</span
 						>{#if item.state === 'uploading'}<progress
 								max="100"
 								value={item.progress}
-								aria-label={`Progreso de ${item.file.name}`}
+								aria-label={`Upload progress for ${item.file.name}`}
 							></progress>{/if}
 					</div>
 					{#if item.state === 'done'}<a
 							class="icon-button"
 							href={item.url}
-							aria-label={`Ver ${item.file.name}`}><ArrowUpRight size={20} /></a
+							aria-label={`View ${item.file.name}`}><ArrowUpRight size={20} /></a
 						><Check size={18} class="success-text" />{:else}<button
 							type="button"
 							class="icon-button"
 							disabled={busy}
 							onclick={() => remove(index)}
-							aria-label={`Quitar ${item.file.name}`}><X size={18} /></button
+							aria-label={`Remove ${item.file.name}`}><X size={18} /></button
 						>{/if}
 				</div>{/each}
 		</div>
 		<p class="muted small row">
-			<Info size={15} /> Las imágenes se validan y procesan antes de aparecer en la galería.
+			<Info size={15} /> Images are validated and processed before appearing in the gallery.
 		</p>
 	</section>
 	<aside class="panel upload-fields form-stack">
 		<div>
-			<h2>Los detalles importan</h2>
+			<h2>Details matter</h2>
 			<p class="muted small">
-				Estos datos se aplican a todo el lote. Después podrás editar cada publicación.
+				These details apply to the entire batch. You can edit each post afterward.
 			</p>
 		</div>
 		<label
-			>Título <span class="muted small">opcional</span><input
+			>Title <span class="muted small">optional</span><input
 				bind:value={title}
 				maxlength="160"
-				placeholder="Dale un nombre a la inspiración"
+				placeholder="Give your inspiration a name"
 				disabled={busy}
 			/></label
 		><label
-			>Etiquetas<textarea
+			>Tags<textarea
 				name="tags"
 				bind:value={tags}
 				required
@@ -214,31 +214,31 @@
 				disabled={busy}
 			></textarea></label
 		>
-		<p class="field-hint">
-			Entre 1 y 50 etiquetas, separadas por espacios. Usa guiones bajos para unir palabras.
-		</p>
+		<p class="field-hint">Add 1 to 50 tags, separated by spaces. Use underscores to join words.</p>
 		<label
-			>Clasificación<select bind:value={rating} disabled={busy}
+			>Rating<select bind:value={rating} disabled={busy}
 				><option value="safe">Safe — general</option><option value="questionable"
-					>Questionable — sugerente</option
-				><option value="explicit">Explicit — explícito</option></select
+					>Questionable — suggestive</option
+				><option value="explicit">Explicit — explicit content</option></select
 			></label
 		><label
-			>Fuente <span class="muted small">opcional</span><input
+			>Source <span class="muted small">optional</span><input
 				bind:value={source}
 				type="url"
-				placeholder="https://sitio-del-autor.com/obra"
+				placeholder="https://artist.example/artwork"
 				disabled={busy}
 			/></label
 		>{#if data.requireApproval}<p class="notice">
-				Las publicaciones de esta comunidad pasan por revisión.
+				Posts in this community require review.
 			</p>{/if}<button
 			class="button primary"
 			disabled={busy || !items.length || items.every((item) => item.state === 'done')}
-			>{#if busy}<LoaderCircle size={17} class="spin" /> Subiendo…{:else}<UploadCloud size={17} /> Publicar
-				{items.filter((item) => item.state !== 'done').length || ''} imágenes{/if}</button
-		><a class="text-link centered" href="/uploads"
-			>Ver todas mis subidas <ArrowUpRight size={14} /></a
+			>{#if busy}<LoaderCircle size={17} class="spin" /> Uploading…{:else}<UploadCloud size={17} /> Upload
+				{items.filter((item) => item.state !== 'done').length || ''}
+				{items.filter((item) => item.state !== 'done').length === 1
+					? 'image'
+					: 'images'}{/if}</button
+		><a class="text-link centered" href="/uploads">View all my uploads <ArrowUpRight size={14} /></a
 		>
 	</aside>
 </form>

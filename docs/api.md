@@ -1,49 +1,49 @@
-# API alpha v1
+# Alpha v1 API
 
-## Consultar publicaciones
+## Query posts
 
 ```http
 GET /api/v1/posts?q=landscape%20-dog%20width:>=640&page=1
 ```
 
-Devuelve `{ posts, hasNext }`. Cada publicación incluye sus etiquetas, metadatos y rutas `thumbnailUrl` y `previewUrl`. Solo devuelve publicaciones publicadas. Comparte el parser, los filtros y los límites de la galería.
+Returns `{ posts, hasNext }`. Each post includes its tags, metadata, `thumbnailUrl` and `previewUrl`. Only published posts are returned. This endpoint shares the gallery's parser, filters and limits.
 
-Una consulta inválida devuelve `400`; la página debe estar entre 1 y 250.
+An invalid query returns `400`; the page must be between 1 and 250.
 
-## Autocompletado
+## Autocomplete
 
 ```http
 GET /api/v1/tags?q=land
 ```
 
-Devuelve `{ tags: [{ id, name, category, count }] }`. Busca por prefijo literal, con un máximo de doce resultados. Los recuentos corresponden a publicaciones `safe` publicadas.
+Returns `{ tags: [{ id, name, category, count }] }`. Searches by literal prefix, with a maximum of twelve results. Counts reflect published `safe` posts.
 
-## Subir una imagen
+## Upload an image
 
 ```http
 POST /api/v1/posts
 Content-Type: multipart/form-data; boundary=...
-Origin: https://tu-comunidad.example
-Cookie: <sesión>
+Origin: https://your-community.example
+Cookie: <session>
 ```
 
-| Campo    | Requisito                                               |
-| -------- | ------------------------------------------------------- |
-| `file`   | Un archivo de imagen.                                   |
-| `tags`   | Entre 1 y 50 etiquetas, separadas por espacios o comas. |
-| `rating` | `safe`, `questionable` o `explicit`.                    |
-| `title`  | Opcional, hasta 160 caracteres.                         |
-| `source` | Opcional, URL HTTP/HTTPS de hasta 2048 caracteres.      |
+| Field    | Requirement                                           |
+| -------- | ----------------------------------------------------- |
+| `file`   | One image file.                                       |
+| `tags`   | Between 1 and 50 tags, separated by spaces or commas. |
+| `rating` | `safe`, `questionable` or `explicit`.                 |
+| `title`  | Optional, up to 160 characters.                       |
+| `source` | Optional HTTP/HTTPS URL, up to 2048 characters.       |
 
-Respuesta `201`:
+Response `201`:
 
 ```json
 { "id": "uuid", "status": "queued", "url": "/posts/uuid" }
 ```
 
-Errores: `400` formulario inválido, `401` sesión requerida, `403` origen inválido, `409` archivo duplicado, `413` límite de tamaño y `429` límite de 100 subidas por cuenta y hora. La aceptación de la subida no implica que su decodificación vaya a terminar correctamente; la ficha muestra el resultado del worker.
+Errors: `400` invalid form, `401` session required, `403` invalid origin, `409` duplicate file, `413` size limit and `429` limit of 100 uploads per account per hour. Accepting an upload does not guarantee successful decoding; the post page displays the worker's result.
 
-## Medios
+## Media
 
 ```http
 GET /media/:id/thumbnail
@@ -51,10 +51,10 @@ GET /media/:id/preview
 GET /media/:id/original
 ```
 
-La clasificación de la búsqueda no altera los permisos de la ficha. Los medios no públicos requieren ser propietario o moderador. Devuelve `404` tanto para medios inexistentes como para medios no autorizados. Los originales no están disponibles hasta que su tipo haya sido validado.
+Search ratings do not change post permissions. Nonpublic media requires ownership or moderator privileges. Both missing and unauthorized media return `404`. Originals are unavailable until their type has been validated.
 
-## Sesiones y acciones
+## Sessions and actions
 
-Better Auth está montado en `/api/auth/*`. La interfaz usa su cliente Svelte para registrarse, iniciar sesión y cerrarla.
+Better Auth is mounted at `/api/auth/*`. The interface uses its Svelte client for registration, sign-in and sign-out.
 
-Edición, favoritos y moderación usan acciones de formulario de SvelteKit. En esta alpha aún no tienen un contrato REST v1 estable. La API v1 de escritura usa sesiones del mismo origen; tokens personales y permisos para integraciones externas forman parte del roadmap.
+Editing, favorites and moderation use SvelteKit form actions. They do not yet have a stable REST v1 contract in this alpha. The v1 write API uses same-origin sessions; personal tokens and permissions for external integrations are on the roadmap.

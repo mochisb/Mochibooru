@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ params, locals, request }) => {
 		.select()
 		.from(posts)
 		.where(eq(posts.id, postId(params.id)));
-	if (!post || !canViewPost(locals.user, post)) error(404, 'Archivo no encontrado.');
+	if (!post || !canViewPost(locals.user, post)) error(404, 'File not found.');
 	const variant = params.variant;
 	const key =
 		variant === 'thumbnail'
@@ -21,7 +21,7 @@ export const GET: RequestHandler = async ({ params, locals, request }) => {
 				: variant === 'original' && post.mime
 					? post.originalKey
 					: null;
-	if (!key) error(404, 'Archivo no disponible.');
+	if (!key) error(404, 'File unavailable.');
 	const etag = `"${post.sha256}-${variant}"`;
 	const headers: Record<string, string> = {
 		'content-type': variant === 'original' ? post.mime! : 'image/webp',

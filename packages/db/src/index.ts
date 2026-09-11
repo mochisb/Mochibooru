@@ -4,7 +4,7 @@ import * as schema from './schema';
 
 function connect() {
 	if (!process.env.DATABASE_URL)
-		throw new Error('Falta DATABASE_URL. Configura .env antes de iniciar Mochibooru.');
+		throw new Error('Missing DATABASE_URL. Configure .env before starting Mochibooru.');
 	const client = postgres(process.env.DATABASE_URL, {
 		max: 10,
 		idle_timeout: 20,

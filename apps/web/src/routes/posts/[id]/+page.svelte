@@ -19,18 +19,18 @@
 	let editing = $state(false);
 	const processing = $derived(['queued', 'processing'].includes(data.post.status));
 	const statusLabels: Record<string, string> = {
-		queued: 'En cola',
-		processing: 'Procesando imagen',
-		pending: 'Pendiente de revisión',
-		rejected: 'Retirada de la galería',
-		failed: 'No se pudo procesar',
-		published: 'Publicada',
+		queued: 'Queued',
+		processing: 'Processing image',
+		pending: 'Pending review',
+		rejected: 'Removed from the gallery',
+		failed: 'Processing failed',
+		published: 'Published',
 	};
 	const actionLabels: Record<string, string> = {
-		upload: 'Publicación creada',
-		edit: 'Metadatos editados',
-		publish: 'Publicación aprobada',
-		reject: 'Publicación retirada',
+		upload: 'Post created',
+		edit: 'Metadata edited',
+		publish: 'Post approved',
+		reject: 'Post removed',
 	};
 	onMount(() => {
 		let refreshing = false;
@@ -57,7 +57,7 @@
 	></svelte:head
 >
 <div class="detail-top">
-	<a class="text-link muted" href="/"><ArrowLeft size={16} /> Volver a explorar</a><span
+	<a class="text-link muted" href="/"><ArrowLeft size={16} /> Back to explore</a><span
 		class="small muted">{statusLabels[data.post.status]}</span
 	>
 </div>
@@ -75,10 +75,9 @@
 					{#if processing}<Clock size={40} class="accent" />
 						<h2>{statusLabels[data.post.status]}</h2>
 						<p>
-							Estamos preparando la imagen y sus miniaturas. Esta página se actualiza
-							automáticamente.
+							We are preparing the image and its thumbnails. This page refreshes automatically.
 						</p>{:else}<ImageOff size={40} />
-						<h2>No hay vista previa</h2>
+						<h2>No preview available</h2>
 						<p>{data.post.processingError ?? statusLabels[data.post.status]}</p>{/if}
 				</div>{/if}
 		</div>
@@ -94,30 +93,30 @@
 					class="text-link"
 					href={`/media/${data.post.id}/original`}
 					target="_blank"
-					rel="noreferrer"><Maximize2 size={15} /> Ver original</a
+					rel="noreferrer"><Maximize2 size={15} /> View original</a
 				>
 			</div>{/if}
 		<section class="panel revision-panel">
-			<h3 class="row"><History size={16} /> Historial</h3>
+			<h3 class="row"><History size={16} /> History</h3>
 			{#each data.revisions as revision}<details class="revision">
 					<summary
 						><span>{actionLabels[revision.action] ?? revision.action}</span><span
 							class="muted small"
-							>{revision.actor} · {new Date(revision.createdAt).toLocaleDateString('es')}</span
+							>{revision.actor} · {new Date(revision.createdAt).toLocaleDateString('en-US')}</span
 						></summary
 					>
-					<pre>{JSON.stringify({ antes: revision.before, después: revision.after }, null, 2)}</pre>
+					<pre>{JSON.stringify({ before: revision.before, after: revision.after }, null, 2)}</pre>
 				</details>{/each}
 		</section>
 	</section>
 	<aside class="detail-sidebar">
 		<div>
-			<div class="eyebrow">PUBLICACIÓN</div>
-			<h1>{data.post.title || 'Sin título'}</h1>
+			<div class="eyebrow">POST</div>
+			<h1>{data.post.title || 'Untitled'}</h1>
 			<p class="muted small">
-				Compartida por <strong>{data.uploader}</strong><br />{new Date(
+				Shared by <strong>{data.uploader}</strong><br />{new Date(
 					data.post.createdAt,
-				).toLocaleDateString('es', { dateStyle: 'long' })}
+				).toLocaleDateString('en-US', { dateStyle: 'long' })}
 			</p>
 		</div>
 		<div class="detail-actions">
@@ -125,21 +124,21 @@
 					<input type="hidden" name="saved" value={String(!data.saved)} /><button
 						class="button secondary"
 						class:saved={data.saved}
-						aria-label={data.saved ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+						aria-label={data.saved ? 'Remove from favorites' : 'Save to favorites'}
 						><Heart size={18} fill={data.saved ? 'currentColor' : 'none'} />{data.saved
-							? 'Guardada'
-							: 'Guardar'}<span>{data.score}</span></button
+							? 'Saved'
+							: 'Save'}<span>{data.score}</span></button
 					>
 				</form>{:else}<a class="button secondary" href={`/login?next=/posts/${data.post.id}`}
-					><Heart size={18} /> Guardar <span>{data.score}</span></a
+					><Heart size={18} /> Save <span>{data.score}</span></a
 				>{/if}{#if data.canEdit}<button
 					class="icon-button"
-					aria-label="Editar publicación"
+					aria-label="Edit post"
 					onclick={() => (editing = !editing)}><Pencil size={18} /></button
 				>{/if}
 		</div>
 		<div class="metadata-row">
-			<span class="muted">Clasificación</span><span class="row"
+			<span class="muted">Rating</span><span class="row"
 				><span class={`rating-dot ${data.post.rating}`}></span>{data.post.rating}</span
 			>
 		</div>
@@ -147,10 +146,10 @@
 				class="source-link"
 				href={data.post.source}
 				target="_blank"
-				rel="noopener noreferrer"><ExternalLink size={16} /> Visitar fuente original</a
+				rel="noopener noreferrer"><ExternalLink size={16} /> Visit original source</a
 			>{/if}
 		<div class="tag-section">
-			<h3>Etiquetas <span class="count-pill">{data.post.tags.length}</span></h3>
+			<h3>Tags <span class="count-pill">{data.post.tags.length}</span></h3>
 			<div class="detail-tags">
 				{#each data.post.tags as tag}<a
 						class={`tag-chip ${tag.category}`}
@@ -164,9 +163,9 @@
 				action="?/edit"
 				use:enhance
 			>
-				<h3>Editar publicación</h3>
-				<label>Título<input name="title" value={data.post.title} maxlength="160" /></label><label
-					>Etiquetas<textarea
+				<h3>Edit post</h3>
+				<label>Title<input name="title" value={data.post.title} maxlength="160" /></label><label
+					>Tags<textarea
 						name="tags"
 						rows="5"
 						required
@@ -174,12 +173,12 @@
 						value={data.post.tags.map((tag) => tag.name).join(' ')}
 					></textarea></label
 				><label
-					>Clasificación<select name="rating" value={data.post.rating}
+					>Rating<select name="rating" value={data.post.rating}
 						><option value="safe">Safe</option><option value="questionable">Questionable</option
 						><option value="explicit">Explicit</option></select
 					></label
-				><label>Fuente<input name="source" type="url" value={data.post.source} /></label><button
-					class="button primary">Guardar cambios</button
+				><label>Source<input name="source" type="url" value={data.post.source} /></label><button
+					class="button primary">Save changes</button
 				>
 			</form>{/if}
 		{#if data.post.status === 'failed' && data.user && (data.user.id === data.post.uploaderId || data.canModerate)}<form
@@ -187,22 +186,22 @@
 				action="?/retry"
 				use:enhance
 			>
-				<button class="button secondary"><RefreshCw size={16} /> Reintentar procesamiento</button>
+				<button class="button secondary"><RefreshCw size={16} /> Retry processing</button>
 			</form>{/if}
 		{#if data.canModerate && ['pending', 'published', 'rejected'].includes(data.post.status)}<div
 				class="panel moderation-panel"
 			>
-				<h3>Moderación</h3>
-				<p class="muted small">Las acciones quedan registradas en el historial.</p>
+				<h3>Moderation</h3>
+				<p class="muted small">Actions are recorded in the history.</p>
 				<form method="POST" action="?/moderate" use:enhance class="form-stack">
 					{#if data.post.status !== 'published'}<button
 							name="action"
 							value="publish"
-							class="button primary"><Check size={16} /> Aprobar publicación</button
+							class="button primary"><Check size={16} /> Approve post</button
 						>{/if}{#if data.post.status !== 'rejected'}<button
 							name="action"
 							value="reject"
-							class="button danger"><X size={16} /> Retirar publicación</button
+							class="button danger"><X size={16} /> Remove post</button
 						>{/if}
 				</form>
 			</div>{/if}

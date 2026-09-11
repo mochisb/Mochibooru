@@ -13,11 +13,11 @@
 	};
 	let { posts }: { posts: Card[] } = $props();
 	const statuses: Record<string, string> = {
-		queued: 'En cola',
-		processing: 'Procesando',
-		pending: 'En revisión',
-		rejected: 'Retirada',
-		failed: 'Fallida',
+		queued: 'Queued',
+		processing: 'Processing',
+		pending: 'Under review',
+		rejected: 'Removed',
+		failed: 'Failed',
 	};
 </script>
 
@@ -36,7 +36,7 @@
 				{:else}
 					<div class="image-placeholder">
 						{#if post.status === 'failed'}<Image size={30} />{:else}<Clock size={30} />{/if}<span
-							>{statuses[post.status] ?? 'Sin vista previa'}</span
+							>{statuses[post.status] ?? 'No preview available'}</span
 						>
 					</div>
 				{/if}
@@ -48,7 +48,7 @@
 				<span class="card-open"><ArrowUpRight size={18} /></span>
 			</div>
 			<div class="post-caption">
-				<span>{post.title || post.tags[0]?.name.replaceAll('_', ' ') || 'Sin título'}</span><small
+				<span>{post.title || post.tags[0]?.name.replaceAll('_', ' ') || 'Untitled'}</span><small
 					>{post.width ? `${post.width} × ${post.height}` : '···'}</small
 				>
 			</div>

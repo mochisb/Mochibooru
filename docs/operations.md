@@ -1,29 +1,29 @@
-# Operación
+# Operations
 
-## Configuración inicial
+## Initial configuration
 
-1. Ejecuta `bun run setup` y ajusta `.env`.
-2. Define `ORIGIN` con la URL real. Para una instalación pública, termina HTTPS en tu proxy.
-3. Configura `POSTGRES_PASSWORD` antes de crear el volumen de base de datos. En desarrollo local, actualiza también `DATABASE_URL`.
-4. Inicia `docker compose up -d --build`, crea una cuenta y ejecuta `admin:promote`.
-5. Activa `REQUIRE_APPROVAL=true` si la comunidad revisa las publicaciones antes de mostrarlas.
+1. Run `bun run setup` and adjust `.env`.
+2. Set `ORIGIN` to the actual URL. For a public installation, terminate HTTPS at your proxy.
+3. Set `POSTGRES_PASSWORD` before creating the database volume. For local development, also update `DATABASE_URL`.
+4. Run `docker compose up -d --build`, create an account and run `admin:promote`.
+5. Enable `REQUIRE_APPROVAL=true` if the community reviews posts before displaying them.
 
-Compose publica PostgreSQL y Redis solo en loopback para facilitar el desarrollo local. La web queda en el puerto 5173 del host. Para un proxy inverso, ajusta la publicación del puerto según tu despliegue.
+Compose exposes PostgreSQL and Redis on loopback only to support local development. The web app uses host port 5173. If using a reverse proxy, adjust the port binding for your deployment.
 
-Si necesitas la IP original detrás de un proxy, configura las variables de `adapter-node`, como `ADDRESS_HEADER` y `XFF_DEPTH`, de acuerdo con tu infraestructura. La cabecera elegida debe ser sobrescrita por un proxy de confianza y la aplicación debe recibir tráfico únicamente desde ese proxy.
+If you need the original client IP behind a proxy, configure `adapter-node` variables such as `ADDRESS_HEADER` and `XFF_DEPTH` for your infrastructure. The selected header must be overwritten by a trusted proxy, and the application must receive traffic only from that proxy.
 
-## Consultar estado
+## Checking status
 
 ```bash
 docker compose ps
 docker compose logs --follow web worker
 ```
 
-`/api/health` devuelve `200` si PostgreSQL responde. Revisa los logs del worker cuando una subida permanece en cola. La web puede aceptar subidas con Redis temporalmente indisponible: las filas pendientes se reconciliarán cuando vuelva el servicio.
+`/api/health` returns `200` when PostgreSQL responds. Check the worker logs if an upload stays queued. The web app can accept uploads while Redis is temporarily unavailable: pending rows will be reconciled when the service returns.
 
-## Actualizaciones
+## Updates
 
-Conserva una copia consistente antes de aplicar una versión con migraciones. Para actualizar desde una nueva revisión del código:
+Keep a consistent backup before applying a release with migrations. To update to a new code revision:
 
 ```bash
 docker compose stop web worker
@@ -32,40 +32,40 @@ docker compose run --rm migrate
 docker compose up -d web worker
 ```
 
-Las migraciones se ejecutan explícitamente; no se usa `drizzle-kit push` en despliegues. Si una actualización exige cambios incompatibles, la restauración requiere la copia y la versión de aplicación correspondientes.
+Migrations run explicitly; deployments do not use `drizzle-kit push`. If an update requires incompatible changes, restoring requires the corresponding backup and application version.
 
-## Copia consistente: PostgreSQL y medios locales
+## Consistent backup: PostgreSQL and local media
 
-Ejecuta desde la raíz. Usa una carpeta nueva para cada copia:
+Run from the repository root. Use a new folder for each backup:
 
 ```bash
-mkdir -p backups/mi-copia
+mkdir -p backups/my-backup
 docker compose stop web worker
-docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > backups/mi-copia/database.dump
-docker compose run --rm --no-deps -T web tar -C /data/media -czf - . > backups/mi-copia/media.tar.gz
+docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > backups/my-backup/database.dump
+docker compose run --rm --no-deps -T web tar -C /data/media -czf - . > backups/my-backup/media.tar.gz
 docker compose up -d web worker
 ```
 
-Comprueba que ambos comandos de copia terminaron correctamente antes de dar el respaldo por válido. Conserva junto a la copia el `.env` de la instalación y la revisión del código, en un destino privado. `database.dump` contiene las cuentas y sesiones; el archivo de medios contiene originales y derivados.
+Check that both backup commands completed successfully before considering the backup valid. Keep the installation's `.env` and code revision alongside the backup in a private location. `database.dump` contains accounts and sessions; the media archive contains originals and derivatives.
 
-La pausa de web y worker evita cambios entre el volcado SQL y la copia de medios. Redis es reconstruible a partir de las filas pendientes de PostgreSQL; no es la fuente de verdad de los trabajos.
+Pausing the web app and worker prevents changes between the SQL dump and the media backup. Redis can be rebuilt from pending PostgreSQL rows; it is not the source of truth for jobs.
 
-## Restauración en una instalación separada
+## Restoring to a separate installation
 
-Prepara la misma versión de aplicación, configura su `.env` y copia los archivos del respaldo. Mantén web y worker detenidos hasta terminar:
+Prepare the same application version, configure its `.env` and copy the backup files. Keep the web app and worker stopped until restoration is complete:
 
 ```bash
 docker compose up -d db redis
-docker compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner' < backups/mi-copia/database.dump
-docker compose run --rm --no-deps -T web tar -C /data/media -xzf - < backups/mi-copia/media.tar.gz
+docker compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner' < backups/my-backup/database.dump
+docker compose run --rm --no-deps -T web tar -C /data/media -xzf - < backups/my-backup/media.tar.gz
 docker compose run --rm migrate
 docker compose up -d web worker
 ```
 
-Comprueba inicio de sesión, búsqueda, original de una publicación y nueva subida. Conserva el respaldo hasta haber comprobado ese recorrido en el destino.
+Verify sign-in, search, viewing a post's original image and a new upload. Keep the backup until that workflow has been verified on the destination.
 
-Para S3, sustituye el archivo de medios por una copia o instantánea consistente del bucket. Web y worker deben apuntar al bucket restaurado, con las mismas claves que aparecen en PostgreSQL.
+For S3, replace the media archive with a consistent bucket backup or snapshot. The web app and worker must point to the restored bucket, using the same keys recorded in PostgreSQL.
 
-## Alcance operativo de la alpha
+## Operational scope of the alpha
 
-La imagen Compose, la recuperación con volúmenes Docker y el adaptador S3 requieren una prueba en el entorno de despliegue concreto. Los tests automatizados del proyecto cubren almacenamiento local, migraciones, procesamiento, interfaz y permisos. El roadmap incluye tareas de limpieza de archivos huérfanos, métricas del worker y actualizaciones guiadas.
+The Compose image, Docker volume recovery and S3 adapter require testing in the specific deployment environment. The project's automated tests cover local storage, migrations, processing, the interface and permissions. The roadmap includes orphaned-file cleanup, worker metrics and guided updates.

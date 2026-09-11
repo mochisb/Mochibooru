@@ -22,8 +22,8 @@
 				: await authClient.signIn.email({ email, password });
 			if (result.error) {
 				message = register
-					? 'No se pudo crear la cuenta. Comprueba los datos o prueba con otro correo.'
-					: 'No se pudo iniciar sesión. Comprueba tu correo y contraseña.';
+					? 'Unable to create your account. Check your details or try another email address.'
+					: 'Unable to sign in. Check your email and password.';
 				return;
 			}
 			const next = page.url.searchParams.get('next') ?? '/';
@@ -32,33 +32,32 @@
 				next.startsWith('/') && !next.startsWith('//') && !next.includes('\\') ? next : '/',
 			);
 		} catch {
-			message = 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
+			message = 'Unable to connect to the server. Please try again.';
 		} finally {
 			busy = false;
 		}
 	}
 </script>
 
-<svelte:head><title>{register ? 'Crear cuenta' : 'Entrar'} · {data.siteName}</title></svelte:head>
+<svelte:head><title>{register ? 'Create account' : 'Sign in'} · {data.siteName}</title></svelte:head
+>
 <div class="auth-container">
 	<div class="auth-art">
 		<img src="/favicon.svg" alt="" width="70" height="70" /><span class="eyebrow"
-			>TU PEQUEÑO UNIVERSO VISUAL</span
+			>YOUR LITTLE VISUAL UNIVERSE</span
 		>
-		<h1>Un lugar para<br />lo que te <em>inspira.</em></h1>
-		<p>Descubre conexiones inesperadas.<br />Construye una colección muy tuya.</p>
+		<h1>A place for<br />what <em>inspires you.</em></h1>
+		<p>Discover unexpected connections.<br />Build a collection all your own.</p>
 		<div class="auth-orbit" aria-hidden="true">✳</div>
 	</div>
 	<section class="auth-form panel">
-		<h2>{register ? 'Crea tu espacio' : 'Qué bueno verte de nuevo'}</h2>
+		<h2>{register ? 'Create your space' : 'Welcome back'}</h2>
 		<p class="muted">
-			{register
-				? 'Tu próxima colección empieza aquí.'
-				: 'Entra para guardar, compartir y descubrir.'}
+			{register ? 'Your next collection starts here.' : 'Sign in to save, share and discover.'}
 		</p>
 		<form onsubmit={submit} class="form-stack">
 			{#if register}<label
-					>Nombre<input
+					>Name<input
 						name="name"
 						bind:value={name}
 						required
@@ -67,17 +66,17 @@
 						autocomplete="nickname"
 					/></label
 				>{/if}<label
-				>Correo electrónico<input
+				>Email address<input
 					name="email"
 					type="email"
 					bind:value={email}
 					required
 					autocomplete="email"
 					maxlength="254"
-					placeholder="tu@correo.com"
+					placeholder="you@example.com"
 				/></label
 			><label
-				>Contraseña<input
+				>Password<input
 					name="password"
 					type="password"
 					bind:value={password}
@@ -86,23 +85,23 @@
 					maxlength="128"
 					autocomplete={register ? 'new-password' : 'current-password'}
 				/></label
-			>{#if register}<span class="muted small">Al menos 12 caracteres.</span>{/if}{#if message}<p
+			>{#if register}<span class="muted small">At least 12 characters.</span>{/if}{#if message}<p
 					class="notice error"
 					role="alert"
 				>
 					{message}
 				</p>{/if}<button class="button primary" disabled={busy}
 				>{#if busy}<LoaderCircle size={17} class="spin" />{:else}{register
-						? 'Crear cuenta'
-						: 'Entrar'}<ArrowRight size={17} />{/if}</button
+						? 'Create account'
+						: 'Sign in'}<ArrowRight size={17} />{/if}</button
 			>
 		</form>
 		{#if data.registrationOpen}<p class="auth-switch">
-				{register ? '¿Ya tienes cuenta?' : '¿Es tu primera visita?'}
+				{register ? 'Already have an account?' : 'First time here?'}
 				<a
 					href={`/login?mode=${register ? 'login' : 'register'}&next=${encodeURIComponent(page.url.searchParams.get('next') ?? '/')}`}
-					>{register ? 'Inicia sesión' : 'Crea una cuenta'}</a
+					>{register ? 'Sign in' : 'Create an account'}</a
 				>
-			</p>{:else}<p class="muted small">El registro está cerrado en esta comunidad.</p>{/if}
+			</p>{:else}<p class="muted small">Registration is closed for this community.</p>{/if}
 	</section>
 </div>

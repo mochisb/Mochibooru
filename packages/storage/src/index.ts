@@ -20,7 +20,7 @@ export interface Storage {
 
 export function validateKey(key: string) {
 	if (!/^[a-zA-Z0-9][a-zA-Z0-9/_-]*\.[a-z0-9]+$/.test(key) || key.includes('..'))
-		throw new Error('Clave de almacenamiento inválida.');
+		throw new Error('Invalid storage key.');
 	return key;
 }
 
@@ -80,12 +80,12 @@ export function getStorage(): Storage {
 		},
 		async read(key) {
 			const result = await client.send(new GetObjectCommand(object(key)));
-			if (!result.Body) throw new Error('Archivo no encontrado.');
+			if (!result.Body) throw new Error('File not found.');
 			return result.Body.transformToByteArray();
 		},
 		async stream(key) {
 			const result = await client.send(new GetObjectCommand(object(key)));
-			if (!result.Body) throw new Error('Archivo no encontrado.');
+			if (!result.Body) throw new Error('File not found.');
 			return { body: result.Body.transformToWebStream(), size: result.ContentLength! };
 		},
 		async delete(key) {

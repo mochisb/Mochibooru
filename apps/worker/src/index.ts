@@ -21,7 +21,7 @@ const worker = new Worker(
 						processingError:
 							error instanceof InvalidMediaError
 								? error.message
-								: 'El procesamiento falló. Puedes reintentarlo desde la publicación.',
+								: 'Processing failed. You can retry from the post page.',
 					})
 					.where(eq(posts.id, job.data.postId));
 			if (error instanceof InvalidMediaError) throw new UnrecoverableError(error.message);
@@ -31,8 +31,8 @@ const worker = new Worker(
 	{ connection: redisConnection(), concurrency: 2, lockDuration: 120_000, maxStalledCount: 2 },
 );
 
-worker.on('completed', (job) => console.info(`Procesada: ${job.data.postId}`));
-worker.on('failed', (job, error) => console.error(`Falló: ${job?.data.postId}`, error));
+worker.on('completed', (job) => console.info(`Processed: ${job.data.postId}`));
+worker.on('failed', (job, error) => console.error(`Failed: ${job?.data.postId}`, error));
 worker.on('error', (error) => console.error('Worker:', error));
 
 // PostgreSQL is the durable outbox. Uploads survive Redis outages and worker restarts.
@@ -60,14 +60,14 @@ async function reconcile() {
 			await getQueue().add('process-image', { postId: post.id }, { jobId: post.id });
 		}
 	} catch (error) {
-		console.error('No se pudo reconciliar la cola:', error);
+		console.error('Unable to reconcile the queue:', error);
 	} finally {
 		reconciling = false;
 	}
 }
 const timer = setInterval(reconcile, 5000);
 await reconcile();
-console.info('Worker multimedia listo.');
+console.info('Media worker ready.');
 let stopping = false;
 async function shutdown() {
 	if (stopping) return;
