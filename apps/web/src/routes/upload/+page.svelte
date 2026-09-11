@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-	import { UploadCloud, X, Check, ArrowUpRight, LoaderCircle, Info } from 'lucide-svelte';
+	import { UploadCloud, X, Check, ArrowUpRight, LoaderCircle } from 'lucide-svelte';
 	let { data } = $props();
 	type UploadItem = {
 		file: File;
@@ -111,14 +111,15 @@
 	});
 </script>
 
-<svelte:head><title>Upload images · {data.siteName}</title></svelte:head>
+<svelte:head><title>Upload · {data.siteName}</title></svelte:head>
+
 <section class="page-heading">
 	<div>
-		<div class="eyebrow">BRING THE COLLECTION TO LIFE</div>
-		<h1>Something worth sharing<span class="accent">.</span></h1>
-		<p>One image, a few tags and so many ways to discover it.</p>
+		<h1>Upload images</h1>
+		<p>Add images and tags to the gallery.</p>
 	</div>
 </section>
+
 <form onsubmit={submit} class="upload-layout">
 	<section>
 		<input
@@ -147,63 +148,65 @@
 				dragging = false;
 				add(event.dataTransfer?.files ?? null);
 			}}
-			><span class="empty-icon"><UploadCloud size={30} /></span><strong
-				>Drop your images here</strong
-			><span>or click to choose files</span><small
-				>JPEG, PNG, WebP, GIF and AVIF · Up to {data.maxUploadMb} MB per image</small
-			></button
 		>
+			<span class="empty-icon"><UploadCloud size={28} /></span>
+			<strong>Drop images here</strong>
+			<span>or click to browse</span>
+			<small>JPEG, PNG, WebP, GIF and AVIF · Up to {data.maxUploadMb} MB</small>
+		</button>
 		{#if notice}<p class="notice error" role="alert">{notice}</p>{/if}
 		<div class="upload-list" aria-live="polite">
-			{#each items as item, index}<div class="upload-item">
+			{#each items as item, index}
+				<div class="upload-item">
 					<img src={item.preview} alt={item.file.name} />
 					<div class="upload-info">
-						<strong>{item.file.name}</strong><span class="muted small"
+						<strong>{item.file.name}</strong>
+						<span class="muted small"
 							>{(item.file.size / 1024 / 1024).toFixed(2)} MB · {item.state === 'done'
 								? 'Queued for processing'
 								: item.state === 'uploading'
 									? `Uploading ${item.progress}%`
 									: item.state === 'error'
 										? item.message
-										: 'Ready to upload'}</span
-						>{#if item.state === 'uploading'}<progress
-								max="100"
-								value={item.progress}
-								aria-label={`Upload progress for ${item.file.name}`}
-							></progress>{/if}
+										: 'Ready'}</span
+						>
+						{#if item.state === 'uploading'}
+							<progress max="100" value={item.progress} aria-label={`Upload progress for ${item.file.name}`}
+							></progress>
+						{/if}
 					</div>
-					{#if item.state === 'done'}<a
-							class="icon-button"
-							href={item.url}
-							aria-label={`View ${item.file.name}`}><ArrowUpRight size={20} /></a
-						><Check size={18} class="success-text" />{:else}<button
+					{#if item.state === 'done'}
+						<a class="icon-button" href={item.url} aria-label={`View ${item.file.name}`}
+							><ArrowUpRight size={18} /></a
+						>
+						<Check size={18} class="success-text" />
+					{:else}
+						<button
 							type="button"
 							class="icon-button"
 							disabled={busy}
 							onclick={() => remove(index)}
 							aria-label={`Remove ${item.file.name}`}><X size={18} /></button
-						>{/if}
-				</div>{/each}
+						>
+					{/if}
+				</div>
+			{/each}
 		</div>
-		<p class="muted small row">
-			<Info size={15} /> Images are validated and processed before appearing in the gallery.
-		</p>
 	</section>
 	<aside class="panel upload-fields form-stack">
 		<div>
-			<h2>Details matter</h2>
-			<p class="muted small">
-				These details apply to the entire batch. You can edit each post afterward.
-			</p>
+			<h2>Details</h2>
+			<p class="muted small">Applied to every image in this batch.</p>
 		</div>
 		<label
 			>Title <span class="muted small">optional</span><input
 				bind:value={title}
 				maxlength="160"
-				placeholder="Give your inspiration a name"
+				placeholder="Title"
 				disabled={busy}
 			/></label
-		><label
+		>
+		<label
 			>Tags<textarea
 				name="tags"
 				bind:value={tags}
@@ -214,31 +217,29 @@
 				disabled={busy}
 			></textarea></label
 		>
-		<p class="field-hint">Add 1 to 50 tags, separated by spaces. Use underscores to join words.</p>
+		<p class="field-hint">1 to 50 tags separated by spaces. Use underscores for multi-word tags.</p>
 		<label
 			>Rating<select bind:value={rating} disabled={busy}
-				><option value="safe">Safe — general</option><option value="questionable"
-					>Questionable — suggestive</option
-				><option value="explicit">Explicit — explicit content</option></select
+				><option value="safe">Safe</option><option value="questionable">Questionable</option
+				><option value="explicit">Explicit</option></select
 			></label
-		><label
+		>
+		<label
 			>Source <span class="muted small">optional</span><input
 				bind:value={source}
 				type="url"
 				placeholder="https://artist.example/artwork"
 				disabled={busy}
 			/></label
-		>{#if data.requireApproval}<p class="notice">
-				Posts in this community require review.
-			</p>{/if}<button
+		>
+		{#if data.requireApproval}<p class="notice">Posts in this community require review.</p>{/if}
+		<button
 			class="button primary"
 			disabled={busy || !items.length || items.every((item) => item.state === 'done')}
 			>{#if busy}<LoaderCircle size={17} class="spin" /> Uploading…{:else}<UploadCloud size={17} /> Upload
 				{items.filter((item) => item.state !== 'done').length || ''}
-				{items.filter((item) => item.state !== 'done').length === 1
-					? 'image'
-					: 'images'}{/if}</button
-		><a class="text-link centered" href="/uploads">View all my uploads <ArrowUpRight size={14} /></a
+				{items.filter((item) => item.state !== 'done').length === 1 ? 'image' : 'images'}{/if}</button
 		>
+		<a class="text-link centered" href="/uploads">View uploads <ArrowUpRight size={14} /></a>
 	</aside>
 </form>

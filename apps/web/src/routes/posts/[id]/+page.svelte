@@ -20,10 +20,10 @@
 	const processing = $derived(['queued', 'processing'].includes(data.post.status));
 	const statusLabels: Record<string, string> = {
 		queued: 'Queued',
-		processing: 'Processing image',
+		processing: 'Processing',
 		pending: 'Pending review',
-		rejected: 'Removed from the gallery',
-		failed: 'Processing failed',
+		rejected: 'Removed',
+		failed: 'Failed',
 		published: 'Published',
 	};
 	const actionLabels: Record<string, string> = {
@@ -56,32 +56,41 @@
 				.join(', ')} · {data.siteName}</title
 	></svelte:head
 >
+
 <div class="detail-top">
-	<a class="text-link muted" href="/"><ArrowLeft size={16} /> Back to explore</a><span
-		class="small muted">{statusLabels[data.post.status]}</span
-	>
+	<a class="text-link muted" href="/"><ArrowLeft size={15} /> Back</a>
+	<span class="small muted">{statusLabels[data.post.status]}</span>
 </div>
+
 {#if form?.message}<p class="notice" role="status">{form.message}</p>{/if}
+
 <div class="post-detail">
 	<section class="viewer-column">
 		<div class="image-viewer">
-			{#if data.post.previewKey}<img
+			{#if data.post.previewKey}
+				<img
 					src={`/media/${data.post.id}/${data.post.animated ? 'original' : 'preview'}`}
 					alt={data.post.title ||
 						data.post.tags.map((tag) => tag.name.replaceAll('_', ' ')).join(', ')}
 					width={data.post.width ?? undefined}
 					height={data.post.height ?? undefined}
-				/>{:else}<div class="empty-state compact">
-					{#if processing}<Clock size={40} class="accent" />
+				/>
+			{:else}
+				<div class="empty-state compact">
+					{#if processing}
+						<Clock size={36} class="accent" />
 						<h2>{statusLabels[data.post.status]}</h2>
-						<p>
-							We are preparing the image and its thumbnails. This page refreshes automatically.
-						</p>{:else}<ImageOff size={40} />
-						<h2>No preview available</h2>
-						<p>{data.post.processingError ?? statusLabels[data.post.status]}</p>{/if}
-				</div>{/if}
+						<p>This page refreshes automatically while the image is processed.</p>
+					{:else}
+						<ImageOff size={36} />
+						<h2>No preview</h2>
+						<p>{data.post.processingError ?? statusLabels[data.post.status]}</p>
+					{/if}
+				</div>
+			{/if}
 		</div>
-		{#if data.post.mime}<div class="viewer-footer">
+		{#if data.post.mime}
+			<div class="viewer-footer">
 				<span
 					>{data.post.width} × {data.post.height}
 					<span class="muted"
@@ -89,16 +98,19 @@
 							.replace('image/', '')
 							.toUpperCase()}</span
 					></span
-				><a
+				>
+				<a
 					class="text-link"
 					href={`/media/${data.post.id}/original`}
 					target="_blank"
-					rel="noreferrer"><Maximize2 size={15} /> View original</a
+					rel="noreferrer"><Maximize2 size={14} /> Original</a
 				>
-			</div>{/if}
+			</div>
+		{/if}
 		<section class="panel revision-panel">
-			<h3 class="row"><History size={16} /> History</h3>
-			{#each data.revisions as revision}<details class="revision">
+			<h3 class="row"><History size={15} /> History</h3>
+			{#each data.revisions as revision}
+				<details class="revision">
 					<summary
 						><span>{actionLabels[revision.action] ?? revision.action}</span><span
 							class="muted small"
@@ -106,12 +118,12 @@
 						></summary
 					>
 					<pre>{JSON.stringify({ before: revision.before, after: revision.after }, null, 2)}</pre>
-				</details>{/each}
+				</details>
+			{/each}
 		</section>
 	</section>
 	<aside class="detail-sidebar">
 		<div>
-			<div class="eyebrow">POST</div>
 			<h1>{data.post.title || 'Untitled'}</h1>
 			<p class="muted small">
 				Shared by <strong>{data.uploader}</strong><br />{new Date(
@@ -120,51 +132,55 @@
 			</p>
 		</div>
 		<div class="detail-actions">
-			{#if data.user}<form method="POST" action="?/favorite" use:enhance>
-					<input type="hidden" name="saved" value={String(!data.saved)} /><button
+			{#if data.user}
+				<form method="POST" action="?/favorite" use:enhance>
+					<input type="hidden" name="saved" value={String(!data.saved)} />
+					<button
 						class="button secondary"
 						class:saved={data.saved}
 						aria-label={data.saved ? 'Remove from favorites' : 'Save to favorites'}
-						><Heart size={18} fill={data.saved ? 'currentColor' : 'none'} />{data.saved
+						><Heart size={17} fill={data.saved ? 'currentColor' : 'none'} />{data.saved
 							? 'Saved'
 							: 'Save'}<span>{data.score}</span></button
 					>
-				</form>{:else}<a class="button secondary" href={`/login?next=/posts/${data.post.id}`}
-					><Heart size={18} /> Save <span>{data.score}</span></a
-				>{/if}{#if data.canEdit}<button
-					class="icon-button"
-					aria-label="Edit post"
-					onclick={() => (editing = !editing)}><Pencil size={18} /></button
-				>{/if}
+				</form>
+			{:else}
+				<a class="button secondary" href={`/login?next=/posts/${data.post.id}`}
+					><Heart size={17} /> Save <span>{data.score}</span></a
+				>
+			{/if}
+			{#if data.canEdit}
+				<button class="icon-button" aria-label="Edit post" onclick={() => (editing = !editing)}
+					><Pencil size={17} /></button
+				>
+			{/if}
 		</div>
 		<div class="metadata-row">
-			<span class="muted">Rating</span><span class="row"
+			<span class="muted">Rating</span>
+			<span class="row"
 				><span class={`rating-dot ${data.post.rating}`}></span>{data.post.rating}</span
 			>
 		</div>
-		{#if data.post.source}<a
-				class="source-link"
-				href={data.post.source}
-				target="_blank"
-				rel="noopener noreferrer"><ExternalLink size={16} /> Visit original source</a
-			>{/if}
+		{#if data.post.source}
+			<a class="source-link" href={data.post.source} target="_blank" rel="noopener noreferrer"
+				><ExternalLink size={15} /> Source</a
+			>
+		{/if}
 		<div class="tag-section">
 			<h3>Tags <span class="count-pill">{data.post.tags.length}</span></h3>
 			<div class="detail-tags">
-				{#each data.post.tags as tag}<a
-						class={`tag-chip ${tag.category}`}
-						href={`/?q=${encodeURIComponent(tag.name)}`}>{tag.name}</a
-					>{/each}
+				{#each data.post.tags as tag}
+					<a class={`tag-chip ${tag.category}`} href={`/?q=${encodeURIComponent(tag.name)}`}
+						>{tag.name}</a
+					>
+				{/each}
 			</div>
 		</div>
-		{#if editing && data.canEdit}<form
-				class="form-stack panel"
-				method="POST"
-				action="?/edit"
-				use:enhance
-			>
+		{#if editing && data.canEdit}
+			<form class="form-stack panel" method="POST" action="?/edit" use:enhance>
 				<h3>Edit post</h3>
-				<label>Title<input name="title" value={data.post.title} maxlength="160" /></label><label
+				<label>Title<input name="title" value={data.post.title} maxlength="160" /></label>
+				<label
 					>Tags<textarea
 						name="tags"
 						rows="5"
@@ -172,38 +188,39 @@
 						maxlength="4050"
 						value={data.post.tags.map((tag) => tag.name).join(' ')}
 					></textarea></label
-				><label
+				>
+				<label
 					>Rating<select name="rating" value={data.post.rating}
 						><option value="safe">Safe</option><option value="questionable">Questionable</option
 						><option value="explicit">Explicit</option></select
 					></label
-				><label>Source<input name="source" type="url" value={data.post.source} /></label><button
-					class="button primary">Save changes</button
 				>
-			</form>{/if}
-		{#if data.post.status === 'failed' && data.user && (data.user.id === data.post.uploaderId || data.canModerate)}<form
-				method="POST"
-				action="?/retry"
-				use:enhance
-			>
-				<button class="button secondary"><RefreshCw size={16} /> Retry processing</button>
-			</form>{/if}
-		{#if data.canModerate && ['pending', 'published', 'rejected'].includes(data.post.status)}<div
-				class="panel moderation-panel"
-			>
+				<label>Source<input name="source" type="url" value={data.post.source} /></label>
+				<button class="button primary">Save changes</button>
+			</form>
+		{/if}
+		{#if data.post.status === 'failed' && data.user && (data.user.id === data.post.uploaderId || data.canModerate)}
+			<form method="POST" action="?/retry" use:enhance>
+				<button class="button secondary"><RefreshCw size={15} /> Retry</button>
+			</form>
+		{/if}
+		{#if data.canModerate && ['pending', 'published', 'rejected'].includes(data.post.status)}
+			<div class="panel moderation-panel">
 				<h3>Moderation</h3>
-				<p class="muted small">Actions are recorded in the history.</p>
+				<p class="muted small">Actions are recorded in history.</p>
 				<form method="POST" action="?/moderate" use:enhance class="form-stack">
-					{#if data.post.status !== 'published'}<button
-							name="action"
-							value="publish"
-							class="button primary"><Check size={16} /> Approve post</button
-						>{/if}{#if data.post.status !== 'rejected'}<button
-							name="action"
-							value="reject"
-							class="button danger"><X size={16} /> Remove post</button
-						>{/if}
+					{#if data.post.status !== 'published'}
+						<button name="action" value="publish" class="button primary"
+							><Check size={15} /> Approve</button
+						>
+					{/if}
+					{#if data.post.status !== 'rejected'}
+						<button name="action" value="reject" class="button danger"
+							><X size={15} /> Remove</button
+						>
+					{/if}
 				</form>
-			</div>{/if}
+			</div>
+		{/if}
 	</aside>
 </div>

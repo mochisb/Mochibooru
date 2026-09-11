@@ -15,7 +15,7 @@
 	const statuses: Record<string, string> = {
 		queued: 'Queued',
 		processing: 'Processing',
-		pending: 'Under review',
+		pending: 'Review',
 		rejected: 'Removed',
 		failed: 'Failed',
 	};
@@ -35,17 +35,17 @@
 					/>
 				{:else}
 					<div class="image-placeholder">
-						{#if post.status === 'failed'}<Image size={30} />{:else}<Clock size={30} />{/if}<span
-							>{statuses[post.status] ?? 'No preview available'}</span
+						{#if post.status === 'failed'}<Image size={26} />{:else}<Clock size={26} />{/if}<span
+							>{statuses[post.status] ?? 'No preview'}</span
 						>
 					</div>
 				{/if}
 				<span class={`rating-dot ${post.rating}`} title={post.rating}></span>
-				{#if post.animated}<span class="media-badge"><Film size={12} /> GIF</span>{/if}
+				{#if post.animated}<span class="media-badge"><Film size={11} /> GIF</span>{/if}
 				{#if post.status !== 'published' && post.thumbnailKey}<span class="status-badge"
 						>{statuses[post.status]}</span
 					>{/if}
-				<span class="card-open"><ArrowUpRight size={18} /></span>
+				<span class="card-open"><ArrowUpRight size={16} /></span>
 			</div>
 			<div class="post-caption">
 				<span>{post.title || post.tags[0]?.name.replaceAll('_', ' ') || 'Untitled'}</span><small

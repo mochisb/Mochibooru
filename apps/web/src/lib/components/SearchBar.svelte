@@ -86,13 +86,13 @@
 
 <div class="search-wrap">
 	<form action="/" method="GET" class="search-form" role="search">
-		<Search size={19} class="muted" />
+		<Search size={20} class="muted" />
 		<input
 			bind:this={input}
 			bind:value={text}
 			name="q"
 			aria-label="Search posts"
-			placeholder="Search tags, artists, characters…"
+			placeholder="Search tags, artists, characters..."
 			autocomplete="off"
 			maxlength="512"
 			role="combobox"
@@ -107,8 +107,7 @@
 			onkeydown={keydown}
 		/>
 		<kbd>/</kbd>
-		<button class="icon-button" type="submit" aria-label="Search"><ArrowUpRight size={18} /></button
-		>
+		<button class="icon-button" type="submit" aria-label="Search"><ArrowUpRight size={18} /></button>
 	</form>
 	<SearchHelp />
 	{#if focused && suggestions.length}

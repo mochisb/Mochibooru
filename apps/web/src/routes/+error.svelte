@@ -4,16 +4,16 @@
 </script>
 
 <section class="empty-state">
-	<span class="eyebrow">ERROR {page.status}</span>
+	<span class="muted small">Error {page.status}</span>
 	<h1>
 		{page.status === 404
-			? 'Nothing here yet'
+			? 'Page not found'
 			: page.status === 401
-				? 'You need an account to access this space'
+				? 'Sign in required'
 				: 'Something went wrong'}
 	</h1>
 	<p>{page.error?.message}</p>
 	<a class="button primary" href={page.status === 401 ? '/login' : '/'}
-		><ArrowLeft size={16} />{page.status === 401 ? 'Sign in' : 'Back to explore'}</a
+		><ArrowLeft size={16} />{page.status === 401 ? 'Sign in' : 'Back'}</a
 	>
 </section>

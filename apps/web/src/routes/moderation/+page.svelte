@@ -6,18 +6,21 @@
 </script>
 
 <svelte:head><title>Moderation · {data.siteName}</title></svelte:head>
+
 <section class="page-heading">
 	<div>
-		<div class="eyebrow">LET'S CARE FOR THIS SPACE</div>
-		<h1>Review queue<span class="accent">.</span></h1>
-		<p>Oldest posts appear first. Open an image to review it.</p>
+		<h1>Moderation queue</h1>
+		<p>Review pending posts. Oldest first.</p>
 	</div>
 </section>
-{#if data.posts.length}<PostGrid posts={data.posts} /><Pagination
-		page={data.page}
-		hasNext={data.hasNext}
-	/>{:else}<section class="empty-state">
-		<ShieldCheck size={40} class="accent" />
+
+{#if data.posts.length}
+	<PostGrid posts={data.posts} />
+	<Pagination page={data.page} hasNext={data.hasNext} />
+{:else}
+	<section class="empty-state">
+		<div class="empty-icon"><ShieldCheck size={28} /></div>
 		<h2>All caught up</h2>
-		<p>There are no posts awaiting review.</p>
-	</section>{/if}
+		<p>No posts awaiting review.</p>
+	</section>
+{/if}

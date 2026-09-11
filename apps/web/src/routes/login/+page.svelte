@@ -39,24 +39,17 @@
 	}
 </script>
 
-<svelte:head><title>{register ? 'Create account' : 'Sign in'} · {data.siteName}</title></svelte:head
->
+<svelte:head><title>{register ? 'Create account' : 'Sign in'} · {data.siteName}</title></svelte:head>
+
 <div class="auth-container">
-	<div class="auth-art">
-		<img src="/favicon.svg" alt="" width="70" height="70" /><span class="eyebrow"
-			>YOUR LITTLE VISUAL UNIVERSE</span
-		>
-		<h1>A place for<br />what <em>inspires you.</em></h1>
-		<p>Discover unexpected connections.<br />Build a collection all your own.</p>
-		<div class="auth-orbit" aria-hidden="true">✳</div>
-	</div>
 	<section class="auth-form panel">
-		<h2>{register ? 'Create your space' : 'Welcome back'}</h2>
+		<h2>{register ? 'Create account' : 'Sign in'}</h2>
 		<p class="muted">
-			{register ? 'Your next collection starts here.' : 'Sign in to save, share and discover.'}
+			{register ? 'Join the gallery.' : 'Welcome back.'}
 		</p>
 		<form onsubmit={submit} class="form-stack">
-			{#if register}<label
+			{#if register}
+				<label
 					>Name<input
 						name="name"
 						bind:value={name}
@@ -65,8 +58,10 @@
 						maxlength="60"
 						autocomplete="nickname"
 					/></label
-				>{/if}<label
-				>Email address<input
+				>
+			{/if}
+			<label
+				>Email<input
 					name="email"
 					type="email"
 					bind:value={email}
@@ -75,7 +70,8 @@
 					maxlength="254"
 					placeholder="you@example.com"
 				/></label
-			><label
+			>
+			<label
 				>Password<input
 					name="password"
 					type="password"
@@ -85,23 +81,25 @@
 					maxlength="128"
 					autocomplete={register ? 'new-password' : 'current-password'}
 				/></label
-			>{#if register}<span class="muted small">At least 12 characters.</span>{/if}{#if message}<p
-					class="notice error"
-					role="alert"
-				>
-					{message}
-				</p>{/if}<button class="button primary" disabled={busy}
+			>
+			{#if register}<span class="muted small">At least 12 characters.</span>{/if}
+			{#if message}<p class="notice error" role="alert">{message}</p>{/if}
+			<button class="button primary" disabled={busy}
 				>{#if busy}<LoaderCircle size={17} class="spin" />{:else}{register
 						? 'Create account'
 						: 'Sign in'}<ArrowRight size={17} />{/if}</button
 			>
 		</form>
-		{#if data.registrationOpen}<p class="auth-switch">
+		{#if data.registrationOpen}
+			<p class="auth-switch">
 				{register ? 'Already have an account?' : 'First time here?'}
 				<a
 					href={`/login?mode=${register ? 'login' : 'register'}&next=${encodeURIComponent(page.url.searchParams.get('next') ?? '/')}`}
 					>{register ? 'Sign in' : 'Create an account'}</a
 				>
-			</p>{:else}<p class="muted small">Registration is closed for this community.</p>{/if}
+			</p>
+		{:else}
+			<p class="muted small">Registration is closed for this community.</p>
+		{/if}
 	</section>
 </div>
