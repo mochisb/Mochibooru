@@ -107,7 +107,8 @@
 			onkeydown={keydown}
 		/>
 		<kbd>/</kbd>
-		<button class="icon-button" type="submit" aria-label="Search"><ArrowUpRight size={18} /></button>
+		<button class="icon-button" type="submit" aria-label="Search"><ArrowUpRight size={18} /></button
+		>
 	</form>
 	<SearchHelp />
 	{#if focused && suggestions.length}

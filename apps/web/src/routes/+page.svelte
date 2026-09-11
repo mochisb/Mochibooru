@@ -23,9 +23,7 @@
 		{data.favoritesOnly ? 'Your favorites' : `Find images on ${data.siteName}`}
 	</h1>
 	<p class="hero-subtitle">
-		{data.favoritesOnly
-			? 'Posts you have saved.'
-			: 'Search by tags, artists, characters and more.'}
+		{data.favoritesOnly ? 'Posts you have saved.' : 'Search by tags, artists, characters and more.'}
 	</p>
 	<div class="hero-search">
 		<SearchBar value={data.q} />
@@ -34,7 +32,9 @@
 		<div class="popular-tags">
 			<span class="muted small">Popular</span>
 			{#each data.popular.slice(0, 8) as tag}
-				<a class="tag-chip" href={`/?q=${encodeURIComponent(tag.name)}`}><Hash size={11} />{tag.name}</a>
+				<a class="tag-chip" href={`/?q=${encodeURIComponent(tag.name)}`}
+					><Hash size={11} />{tag.name}</a
+				>
 			{/each}
 		</div>
 	{/if}
@@ -81,14 +81,13 @@
 {:else}
 	<section class="empty-state">
 		<div class="empty-icon">
-			{#if data.q || data.favoritesOnly}<Search size={32} class="accent" />{:else}<ImagePlus size={32} class="accent" />{/if}
+			{#if data.q || data.favoritesOnly}<Search size={32} class="accent" />{:else}<ImagePlus
+					size={32}
+					class="accent"
+				/>{/if}
 		</div>
 		<h2>
-			{data.q
-				? 'No matches'
-				: data.favoritesOnly
-					? 'No favorites yet'
-					: 'No images yet'}
+			{data.q ? 'No matches' : data.favoritesOnly ? 'No favorites yet' : 'No images yet'}
 		</h2>
 		<p>
 			{data.q

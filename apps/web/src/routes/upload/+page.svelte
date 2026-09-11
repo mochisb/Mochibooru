@@ -171,7 +171,10 @@
 										: 'Ready'}</span
 						>
 						{#if item.state === 'uploading'}
-							<progress max="100" value={item.progress} aria-label={`Upload progress for ${item.file.name}`}
+							<progress
+								max="100"
+								value={item.progress}
+								aria-label={`Upload progress for ${item.file.name}`}
 							></progress>
 						{/if}
 					</div>
@@ -220,8 +223,9 @@
 		<p class="field-hint">1 to 50 tags separated by spaces. Use underscores for multi-word tags.</p>
 		<label
 			>Rating<select bind:value={rating} disabled={busy}
-				><option value="safe">Safe</option><option value="questionable">Questionable</option
-				><option value="explicit">Explicit</option></select
+				><option value="safe">Safe</option><option value="questionable">Questionable</option><option
+					value="explicit">Explicit</option
+				></select
 			></label
 		>
 		<label
@@ -238,7 +242,9 @@
 			disabled={busy || !items.length || items.every((item) => item.state === 'done')}
 			>{#if busy}<LoaderCircle size={17} class="spin" /> Uploading…{:else}<UploadCloud size={17} /> Upload
 				{items.filter((item) => item.state !== 'done').length || ''}
-				{items.filter((item) => item.state !== 'done').length === 1 ? 'image' : 'images'}{/if}</button
+				{items.filter((item) => item.state !== 'done').length === 1
+					? 'image'
+					: 'images'}{/if}</button
 		>
 		<a class="text-link centered" href="/uploads">View uploads <ArrowUpRight size={14} /></a>
 	</aside>

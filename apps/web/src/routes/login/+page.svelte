@@ -39,7 +39,8 @@
 	}
 </script>
 
-<svelte:head><title>{register ? 'Create account' : 'Sign in'} · {data.siteName}</title></svelte:head>
+<svelte:head><title>{register ? 'Create account' : 'Sign in'} · {data.siteName}</title></svelte:head
+>
 
 <div class="auth-container">
 	<section class="auth-form panel">

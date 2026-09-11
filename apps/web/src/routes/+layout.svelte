@@ -54,12 +54,11 @@
 		><img src="/favicon.svg" alt="" width="28" height="28" /><span>{data.siteName}</span></a
 	>
 	<nav class="main-nav" aria-label="Main navigation">
-		<a class:active={isActive('/')} href="/"
-			><Compass size={18} /><span>Explore</span></a
-		>
+		<a class:active={isActive('/')} href="/"><Compass size={18} /><span>Explore</span></a>
 		<a
 			class:active={page.url.searchParams.get('view') === 'favorites'}
-			href={data.user ? '/?view=favorites' : '/login?next=/%3Fview=favorites'}><Heart size={18} /><span>Favorites</span></a
+			href={data.user ? '/?view=favorites' : '/login?next=/%3Fview=favorites'}
+			><Heart size={18} /><span>Favorites</span></a
 		>
 		<a class:active={isActive('/uploads')} href={data.user ? '/uploads' : '/login?next=/uploads'}
 			><Images size={18} /><span>Uploads</span></a
@@ -86,5 +85,13 @@
 {#if logoutError}<p class="notice error" role="alert">{logoutError}</p>{/if}
 <main id="main">{@render children()}</main>
 <footer class="footer">
-	<span>{data.siteName} <span class="muted">— image gallery</span></span>
+	<span>{data.siteName}</span>
+	<a
+		href="https://github.com/mochisb/Mochibooru"
+		target="_blank"
+		rel="noreferrer"
+		class="text-link muted"
+	>
+		Powered by Mochibooru · open source
+	</a>
 </footer>
