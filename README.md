@@ -2,6 +2,8 @@
 
 **A little visual universe.** A self-hosted booru engine built with **Bun, TypeScript, Svelte 5 and SvelteKit**.
 
+The web interface is English-only, with fixed `en-US` date formatting. It does not switch languages based on browser preferences or provide a language selector.
+
 ## Quick start with Docker
 
 Requirements: **Bun 1.3.14** and **Docker with Compose v2**.

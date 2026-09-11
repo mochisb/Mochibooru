@@ -4,6 +4,9 @@ import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { getDb, closeDb, user, posts } from '@mochi/db';
 
+// The interface stays in English regardless of the browser's preferred language.
+test.use({ locale: 'es-ES' });
+
 test.afterAll(async () => {
 	await closeDb();
 });
@@ -24,7 +27,8 @@ test('registration → upload → processing → search → favorites → modera
 		.withMetadata({ exif: { IFD0: { ImageDescription: unique } } })
 		.toBuffer();
 
-	await page.goto('/login?mode=register');
+	const response = await page.goto('/login?mode=register');
+	expect(response?.headers()['content-language']).toBe('en');
 	await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 	await page.getByLabel('Name', { exact: true }).fill('Mochi Tester');
 	await page.getByLabel('Email address').fill(email);

@@ -16,6 +16,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 		event.locals.session = session?.session ?? null;
 	}
 	const response = await svelteKitHandler({ event, resolve, auth, building });
+	if (response.headers.get('content-type')?.includes('text/html')) {
+		response.headers.set('Content-Language', 'en');
+	}
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set('X-Frame-Options', 'DENY');

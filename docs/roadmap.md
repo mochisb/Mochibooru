@@ -18,7 +18,7 @@
 - [ ] Processing, queue and error metrics.
 - [ ] Orphaned-object cleanup and configurable retention policies.
 - [ ] S3 integration tests across multiple providers.
-- [ ] Internationalization and further visual customization.
+- [ ] Further visual customization for the English-only interface.
 
 ## Media and differentiating features
 
