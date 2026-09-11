@@ -1,0 +1,12 @@
+{
+	"name": "@mochi/shared",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./config": "./src/config.ts"
+	},
+	"dependencies": {
+		"zod": "^4.3.6"
+	}
+}

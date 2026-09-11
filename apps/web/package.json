@@ -1,0 +1,33 @@
+{
+	"name": "@mochi/web",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "bun --bun vite dev --host 0.0.0.0",
+		"build": "bun --bun vite build",
+		"check": "bun --bun svelte-kit sync && bun --bun svelte-check --tsconfig ./tsconfig.json"
+	},
+	"dependencies": {
+		"@mochi/core": "workspace:*",
+		"@mochi/db": "workspace:*",
+		"@mochi/search": "workspace:*",
+		"@mochi/shared": "workspace:*",
+		"@mochi/storage": "workspace:*",
+		"@better-auth/drizzle-adapter": "^1.7.4",
+		"better-auth": "^1.7.4",
+		"bits-ui": "^2.16.0",
+		"drizzle-orm": "^0.45.2",
+		"lucide-svelte": "^0.577.0",
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^5.5.4",
+		"@sveltejs/kit": "^2.70.3",
+		"@sveltejs/vite-plugin-svelte": "^7.0.0",
+		"@tailwindcss/vite": "^4.2.1",
+		"svelte": "^5.57.0",
+		"svelte-check": "^4.4.2",
+		"tailwindcss": "^4.2.1",
+		"vite": "^8.3.0"
+	}
+}

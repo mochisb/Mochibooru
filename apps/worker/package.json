@@ -1,0 +1,14 @@
+{
+	"name": "@mochi/worker",
+	"private": true,
+	"type": "module",
+	"dependencies": {
+		"@mochi/core": "workspace:*",
+		"@mochi/db": "workspace:*",
+		"@mochi/shared": "workspace:*",
+		"@mochi/storage": "workspace:*",
+		"bullmq": "^5.71.0",
+		"drizzle-orm": "^0.45.2",
+		"sharp": "^0.34.5"
+	}
+}

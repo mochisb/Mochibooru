@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+.git
+.env
+.env.*
+**/.svelte-kit
+**/build
+data
+backups
+test-results
+playwright-report

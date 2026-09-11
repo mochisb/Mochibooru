@@ -1,0 +1,93 @@
+name: mochibooru
+
+x-app: &app
+  image: mochibooru:local
+  build:
+    context: .
+    dockerfile: infra/docker/Dockerfile
+  env_file: .env
+  environment: &environment
+    DATABASE_URL: postgres://${POSTGRES_USER:-mochi}:${POSTGRES_PASSWORD:-mochi}@db:5432/${POSTGRES_DB:-mochibooru}
+    REDIS_URL: redis://redis:6379
+    STORAGE_PATH: /data/media
+    ORIGIN: ${ORIGIN:-http://localhost:5173}
+    PORT: '3000'
+    HOST: 0.0.0.0
+  volumes:
+    - media:/data/media
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mochi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mochi}
+      POSTGRES_DB: ${POSTGRES_DB:-mochibooru}
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis:/data
+    ports:
+      - '127.0.0.1:6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  migrate:
+    <<: *app
+    command: ['bun', 'packages/db/src/migrate.ts']
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    <<: *app
+    ports:
+      - '5173:3000'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'bun',
+          '-e',
+          "const r = await fetch('http://localhost:3000/api/health'); process.exit(r.ok ? 0 : 1)",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  worker:
+    <<: *app
+    command: ['bun', 'apps/worker/src/index.ts']
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres:
+  redis:
+  media:

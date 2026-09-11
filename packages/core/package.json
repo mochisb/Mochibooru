@@ -1,0 +1,17 @@
+{
+	"name": "@mochi/core",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./permissions": "./src/permissions.ts",
+		"./posts": "./src/posts.ts",
+		"./queue": "./src/queue.ts"
+	},
+	"dependencies": {
+		"@mochi/db": "workspace:*",
+		"@mochi/shared": "workspace:*",
+		"@mochi/search": "workspace:*",
+		"drizzle-orm": "^0.45.2",
+		"bullmq": "^5.71.0"
+	}
+}

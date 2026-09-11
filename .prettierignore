@@ -1,0 +1,9 @@
+bun.lock
+node_modules
+**/.svelte-kit
+**/build
+packages/db/migrations/meta
+data
+backups
+playwright-report
+test-results
